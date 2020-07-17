@@ -49,6 +49,13 @@ import org.springframework.lang.Nullable;
  * @see ByteArrayResource
  * @see InputStreamResource
  */
+
+/**
+ * 资源描述符的接口，它从基础资源的实际类型中抽象出来，例如文件或类路径资源。
+ *
+ * 如果InputStream以物理形式存在，则可以为每个资源打开InputStream，但是仅可以为某些资源返回URL或File句柄。
+ * 实际行为取决于实现类。
+ */
 public interface Resource extends InputStreamSource {
 
 	/**

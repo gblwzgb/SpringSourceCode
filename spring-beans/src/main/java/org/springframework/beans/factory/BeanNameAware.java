@@ -33,6 +33,13 @@ package org.springframework.beans.factory;
  * @see BeanFactoryAware
  * @see InitializingBean
  */
+
+/**
+ * 如果Bean想要知道自己在Bean工厂中的beanName，就实现这个接口。
+ * 注意，通常不建议对象依赖于它的bean名称，因为这表示对外部配置的潜在脆弱依赖，以及对Spring API的不必要依赖。
+ *
+ * 有关所有bean生命周期方法的列表，请参见BeanFactory javadocs。
+ */
 public interface BeanNameAware extends Aware {
 
 	/**

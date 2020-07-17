@@ -113,6 +113,53 @@ import org.springframework.lang.Nullable;
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
  */
+
+/**
+ * 用于访问Spring bean容器的根接口。这是bean容器的基本客户端视图。
+ * 诸如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory之类的其他接口可用于特定目的。
+ *
+ * 该接口由包含多个bean定义的对象实现，每个定义均由String名称唯一标识。
+ * 根据bean的定义，工厂将返回所包含对象的独立实例（Prototype设计模式），
+ * 或者返回单个共享实例（Singleton设计模式的替代方案，其中实例是作用域中的单例）。的工厂）。
+ * 将返回哪种类型的实例取决于bean工厂的配置：API是相同的。从Spring 2.0开始，
+ * 根据具体的应用程序上下文（例如，Web环境中的“请求”和“会话”范围），可以使用更多范围。
+ *
+ * 这种方法的重点是BeanFactory是应用程序组件的中央注册表，
+ * 并且集中了应用程序组件的配置（例如，不再需要单个对象读取属性文件）。
+ * 有关此方法的好处的讨论，请参见“一对一J2EE专家设计和开发”的第4章和第11章。
+ *
+ * 请注意，通常最好依靠依赖注入（“推”配置）通过设置器或构造函数配置应用程序对象，
+ * 而不是使用任何形式的“拉”配置（例如BeanFactory查找）。
+ * Spring的Dependency Injection功能是使用此BeanFactory接口及其子接口实现的。
+ *
+ * 通常，BeanFactory会加载存储在配置源（例如XML文档）中的bean定义，并使用org.springframework.beans包来配置bean。
+ * 但是，实现可以根据需要直接在Java代码中直接返回它创建的Java对象。
+ * 定义的存储方式没有任何限制：LDAP，RDBMS，XML，属性文件等。鼓励实现以支持Bean之间的引用（依赖注入）。
+ *
+ * 与ListableBeanFactory中的方法相比，此接口中的所有操作还将检查父工厂（如果这是HierarchicalBeanFactory）。
+ * 如果在此工厂实例中未找到bean，则将询问直接的父工厂。该工厂实例中的Bean应该覆盖任何父工厂中的同名Bean。
+ *
+ * Bean工厂实现应尽可能支持标准Bean生命周期接口。全套初始化方法及其标准顺序为：
+ * 1、BeanNameAware's setBeanName
+ * 2、BeanClassLoaderAware's setBeanClassLoader
+ * 3、BeanFactoryAware's setBeanFactory
+ * 4、EnvironmentAware's setEnvironment
+ * 5、EmbeddedValueResolverAware's setEmbeddedValueResolver
+ * 6、ResourceLoaderAware's setResourceLoader (only applicable when running in an application context)
+ * 7、ApplicationEventPublisherAware's setApplicationEventPublisher (only applicable when running in an application context)
+ * 8、MessageSourceAware's setMessageSource (only applicable when running in an application context)
+ * 9、ApplicationContextAware's setApplicationContext (only applicable when running in an application context)
+ * 10、ServletContextAware's setServletContext (only applicable when running in a web application context)
+ * 11、postProcessBeforeInitialization methods of BeanPostProcessors
+ * 12、InitializingBean's afterPropertiesSet
+ * 13、a custom init-method definition
+ * 14、postProcessAfterInitialization methods of BeanPostProcessors
+ *
+ * 在关闭bean工厂时，以下生命周期方法适用：
+ * 1、postProcessBeforeDestruction methods of DestructionAwareBeanPostProcessors
+ * 2、DisposableBean's destroy
+ * 3、a custom destroy-method definition
+ */
 public interface BeanFactory {
 
 	/**

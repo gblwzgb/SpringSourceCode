@@ -32,6 +32,19 @@ package org.springframework.beans.factory;
  * @author Juergen Hoeller
  * @since 3.1
  */
+
+/**
+ * 标记超级接口，用于指示bean有资格通过回调机制让Spring容器通知特定框架对象。
+ * 实际的方法签名由各个子接口确定，但通常应仅由"一个！"接受单个参数的返回void的方法组成。
+ *
+ * 请注意，仅实现Aware不会提供默认功能。
+ * 相反，必须显式完成处理，例如在org.springframework.beans.factory.config.BeanPostProcessor中。
+ * 有关处理特定*Aware接口回调的示例，请参考org.springframework.context.support.ApplicationContextAwareProcessor。
+ */
+// 提供了一种能力，告诉Spring，我需要XXX回调，比如我需要感知到我的beanName，
+// 我就实现一个BeanNameAware，那么Spring就会来调用你实现setBeanName()方法，来把beanName传递给你。
+// 再比如我们经常实现一个ApplicationContextAware接口，就可以拿到Spring的上下文了。
+// 不过这样的话，项目代码就和Spring强耦合起来了，问题不大。
 public interface Aware {
 
 }

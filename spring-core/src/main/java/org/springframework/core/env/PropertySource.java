@@ -57,12 +57,34 @@ import org.springframework.util.ObjectUtils;
  * @see MutablePropertySources
  * @see org.springframework.context.annotation.PropertySource
  */
+
+/**
+ * 表示name/value属性对来源的抽象基类。底层源对象可以是封装属性的任何T类​​型。
+ * 示例包括java.util.Properties对象，java.util.Map对象，ServletContext和ServletConfig对象（用于访问init参数）。
+ * 探索PropertySource类型层次结构以查看提供的实现。
+ *
+ * PropertySource对象通常不是孤立使用的，而是通过PropertySources对象使用的，
+ * 该对象聚合属性源，并与PropertyResolver实现结合使用，该实现可以对整个PropertySources执行基于优先级的搜索。
+ *
+ * PropertySource身份的确定不是基于封装属性的内容，而是仅基于PropertySource的名称。
+ * 这对于在集合上下文中操作PropertySource对象很有用。
+ * 有关详细信息，请参见MutablePropertySources中的操作以及named（String）和toString（）方法。
+ *
+ * 请注意，在使用@Configuration类时，@PropertySource注解提供了一种方便的声明性方式，可以将属性源添加到封闭Environment中。
+ * @param <T>
+ */
+// 可以理解成在HashMap上又封装了一次，以支持不同的属性源，这里的HashMap就相当于一个属性源，Properties也是一个属性源。
+
+// Spring内部统一使用getProperty(name)（抽象方法，由子类实现）就可以取到属性值了，
+// 至于PropertySource内部怎么通过source来取得value，就由实现子类自己实现了。
 public abstract class PropertySource<T> {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	// 这个PropertySource的名称，注意这里的name不是不是K-V里的K。
 	protected final String name;
 
+	// 属性源，使用泛型就可以支持不同的属性源了。
 	protected final T source;
 
 

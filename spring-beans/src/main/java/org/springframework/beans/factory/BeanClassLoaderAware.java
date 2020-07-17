@@ -35,6 +35,14 @@ package org.springframework.beans.factory;
  * @see BeanFactoryAware
  * @see InitializingBean
  */
+
+/**
+ * 允许bean知道自己bean类加载器的回调；也就是说，当前bean工厂使用这个类加载器来加载这个bean的class。
+ *
+ * 这主要是由框架类实现的，尽管它们可能是从共享的类加载器加载的，但它们必须按名称选择应用程序类。
+ *
+ * 有关所有bean生命周期方法的列表，请参见BeanFactory javadocs。
+ */
 public interface BeanClassLoaderAware extends Aware {
 
 	/**

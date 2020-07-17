@@ -47,6 +47,20 @@ package org.springframework.context;
  * @see org.springframework.jms.listener.AbstractMessageListenerContainer
  * @see org.springframework.scheduling.quartz.SchedulerFactoryBean
  */
+
+/**
+ * 定义启动/停止生命周期控制方法的通用接口。典型的用例是控制异步处理。注意：此接口并不意味着特定的自动启动语义。考虑为此目的实施SmartLifecycle。
+ *
+ * 可以由组件（通常是在Spring上下文中定义的Spring bean）和容器（通常是Spring ApplicationContext本身）实现。
+ * 容器会将开始/停止信号传播到每个容器中应用的所有组件，例如在运行时停止/重新启动的情况。
+ *
+ * 可用于直接调用或通过JMX进行管理操作。在后一种情况下，通常将使用org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler定义org.springframework.jmx.export.MBeanExporter，从而将活动控制的组件的可见性限制为Lifecycle接口。
+ *
+ * 请注意，当前的Lifecycle接口仅在顶级Singleton Bean上受支持。
+ * 在任何其他组件上，Lifecycle接口将保持未被检测到并因此被忽略。
+ * 另外，请注意，扩展的SmartLifecycle接口提供了与应用程序上下文的启动和关闭阶段的复杂集成。
+ */
+// 生命周期接口，和Tomcat的Lifecycle很像，传播启/停信号，大家一起启动一起停止。
 public interface Lifecycle {
 
 	/**

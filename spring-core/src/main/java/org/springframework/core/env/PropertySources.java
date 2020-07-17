@@ -29,6 +29,10 @@ import org.springframework.lang.Nullable;
  * @since 3.1
  * @see PropertySource
  */
+/**
+ * 包含一个或多个PropertySource对象的持有者。
+ */
+// 每个PropertySource都有一个name属性，通过name来获取具体的PropertySource。
 public interface PropertySources extends Iterable<PropertySource<?>> {
 
 	/**

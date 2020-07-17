@@ -39,6 +39,16 @@ import org.springframework.util.ResourceUtils;
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */
+
+/**
+ * 用于加载资源（例如类路径或文件系统资源）的策略接口。
+ * 提供此功能需要org.springframework.context.ApplicationContext以及扩展的org.springframework.core.io.support.ResourcePatternResolver支持。
+ *
+ * DefaultResourceLoader是一个独立的实现，可以在ApplicationContext之外使用，也由ResourceEditor使用。
+ *
+ * 当在ApplicationContext中运行时，可以使用特定上下文的资源加载策略从Strings填充Resource和Resource array类型的Bean属性。
+ */
+// 提供了加载资源的能力
 public interface ResourceLoader {
 
 	/** Pseudo URL prefix for loading from the class path: "classpath:". */

@@ -33,6 +33,13 @@ import java.util.Properties;
  * @author Juergen Hoeller
  * @since 3.1
  */
+
+/**
+ * 从Property对象提取属性的PropertySource实现。
+ *
+ * 请注意，由于从技术上讲，属性对象是<Object，Object>哈希表，因此可能包含非字符串键或值。
+ * 但是，此实现只能以与Properties.getProperty和Properties.setProperty相同的方式访问基于字符串的键和值。
+ */
 public class PropertiesPropertySource extends MapPropertySource {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
