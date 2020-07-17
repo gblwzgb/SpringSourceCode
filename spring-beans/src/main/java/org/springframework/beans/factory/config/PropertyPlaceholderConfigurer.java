@@ -203,6 +203,13 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	 * Visit each bean definition in the given bean factory and attempt to replace ${...} property
 	 * placeholders with values from the given properties.
 	 */
+	/**
+	 * 访问给定bean工厂中的每个bean定义，并尝试用给定属性中的值替换$ {...}属性占位符。
+	 *
+	 * @param beanFactoryToProcess
+	 * @param props the Properties to apply
+	 * @throws BeansException
+	 */
 	@Override
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)
 			throws BeansException {

@@ -36,6 +36,17 @@ import java.util.EventListener;
  * @see org.springframework.context.event.ApplicationEventMulticaster
  * @see org.springframework.context.event.EventListener
  */
+
+/**
+ * 由应用程序事件侦听器实现的接口。
+ *
+ * 基于Observer设计模式的标准java.util.EventListener接口。
+ *
+ * 从Spring 3.0开始，ApplicationListener可以一般性地声明其感兴趣的事件类型。
+ * 向Spring ApplicationContext注册后，将相应地过滤事件，并且仅针对匹配事件对象调用监听器。
+ *
+ * @param <E>
+ */
 @FunctionalInterface
 public interface ApplicationListener<E extends ApplicationEvent> extends EventListener {
 

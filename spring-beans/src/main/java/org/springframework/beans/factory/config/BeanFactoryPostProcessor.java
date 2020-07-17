@@ -18,6 +18,30 @@ package org.springframework.beans.factory.config;
 
 import org.springframework.beans.BeansException;
 
+
+/**
+ * 工厂Hook允许对应用程序上下文的bean definitions进行自定义修改，以适应context底层bean工厂的bean属性值。
+ *
+ * 对于针对系统管理员的自定义配置文件很有用，这些文件覆盖了在应用程序上下文中配置的Bean属性。
+ * 请参阅PropertyResourceConfigurer及其具体实现，以获取可解决此类配置需求的即用型解决方案。
+ *
+ * BeanFactoryPostProcessor可以与Bean definitions进行交互并对其进行修改，但不能与Bean实例进行交互。
+ * 这样做可能会导致bean实例化过早，从而违反了容器并造成了意外的副作用。如果需要与bean实例交互，请考虑改为实现BeanPostProcessor。
+ *
+ * 注册
+ * ApplicationContext在其Bean定义中自动检测BeanFactoryPostProcessor Bean，并在创建任何其他Bean之前应用它们。
+ * BeanFactoryPostProcessor也可以通过编程方式注册到ConfigurableApplicationContext。
+ *
+ * 顺序
+ * 在ApplicationContext中自动检测到的BeanFactoryPostProcessor bean将
+ * 根据org.springframework.core.PriorityOrdered和org.springframework.core.Ordered语义进行排序。
+ * 相反，通过ConfigurableApplicationContext以编程方式注册的BeanFactoryPostProcessor Bean将按注册顺序应用；
+ * 以编程方式注册的后处理器将忽略通过实现PriorityOrdered或Ordered接口表示的任何排序语义。此外，BeanFactoryPostProcessor Bean不考虑@Order注解。
+ */
+// 给一个机会，让BeanFactoryPostProcessor的实现类，可以对BeanFactory做一定的处理。
+// 比较常见的是对BeanFactory里的Bean Definitions做处理，比如处理替换${}占位符
+
+
 /**
  * Factory hook that allows for custom modification of an application context's
  * bean definitions, adapting the bean property values of the context's underlying

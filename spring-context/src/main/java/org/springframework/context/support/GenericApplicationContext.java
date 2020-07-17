@@ -290,6 +290,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 	 */
 	@Override
 	public final ConfigurableListableBeanFactory getBeanFactory() {
+		// 默认构造方法中会创建一个DefaultListableBeanFactory
 		return this.beanFactory;
 	}
 

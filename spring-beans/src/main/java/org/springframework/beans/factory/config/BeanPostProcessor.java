@@ -19,6 +19,31 @@ package org.springframework.beans.factory.config;
 import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
+
+/**
+ * 工厂hook允许对新bean实例进行自定义修改-例如，检查标记接口(Aware吗)或使用代理包装bean。
+ *
+ * 通常，通过标记接口等填充bean的后处理器将实现postProcessBeforeInitialization，
+ * 而使用代理包装bean的后处理器通常将实现postProcessAfterInitialization。
+ *
+ * ~~注册~~
+ * ApplicationContext可以在其​​Bean definitions中【自动检测】实现了BeanPostProcessor接口的Bean，并将这些后处理器应用于随后创建的任何Bean。
+ * 一个普通的BeanFactory允许以编程方式注册后处理器，并将其应用于通过Bean工厂创建的所有Bean。？（直接set一个吗）
+ *
+ * ~~排序~~
+ * 在ApplicationContext中自动检测到的BeanPostProcessor Bean的排序将
+ * 根据org.springframework.core.PriorityOrdered和org.springframework.core.Ordered语义进行排序。
+ * 相反，通过BeanFactory编程注册的BeanPostProcessor Bean将按注册顺序应用；
+ * 以编程方式注册的后处理器将忽略通过实现PriorityOrdered或Ordered接口表示的任何排序语义。
+ * 此外，BeanPostProcessor Bean不考虑@Order注解。
+ */
+// 给你一个机会，可以被Bean进行在初始化前和初始化后各做一些事情。
+// 这些Processor可以通过注解来指定执行顺序。
+// 可以让Context自动检测Processor，也可以显示的注册Processor。
+
+// 前置处理举例：填充属性的ApplicationContextAwareProcessor
+// 后置处理举例：创建代理
+
 /**
  * Factory hook that allows for custom modification of new bean instances &mdash;
  * for example, checking for marker interfaces or wrapping beans with proxies.

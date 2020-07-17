@@ -59,6 +59,7 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.support.AbstractApplicationContext#refresh()
  */
+// 一个前置处理器，给Bean提供各种Environment、ApplicationContext、ResourceLoader等，取决于Bean实现了什么*Aware
 class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
 	private final ConfigurableApplicationContext applicationContext;
@@ -81,6 +82,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 		if (!(bean instanceof EnvironmentAware || bean instanceof EmbeddedValueResolverAware ||
 				bean instanceof ResourceLoaderAware || bean instanceof ApplicationEventPublisherAware ||
 				bean instanceof MessageSourceAware || bean instanceof ApplicationContextAware)){
+			// 如果bean没有实现if里的任何一个*Award，则不处理
 			return bean;
 		}
 
@@ -97,6 +99,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 			}, acc);
 		}
 		else {
+			// 根据bean实现的Aware，给bean提供各种需要的属性
 			invokeAwareInterfaces(bean);
 		}
 
@@ -119,6 +122,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 		if (bean instanceof MessageSourceAware) {
 			((MessageSourceAware) bean).setMessageSource(this.applicationContext);
 		}
+		// 比较常用的是这个，获取上下文
 		if (bean instanceof ApplicationContextAware) {
 			((ApplicationContextAware) bean).setApplicationContext(this.applicationContext);
 		}

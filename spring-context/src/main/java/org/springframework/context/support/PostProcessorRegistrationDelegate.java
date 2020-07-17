@@ -46,6 +46,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 4.0
  */
+// 委托类：AbstractApplicationContext进行后处理器处理。
 final class PostProcessorRegistrationDelegate {
 
 	private PostProcessorRegistrationDelegate() {
@@ -59,18 +60,27 @@ final class PostProcessorRegistrationDelegate {
 		Set<String> processedBeans = new HashSet<>();
 
 		if (beanFactory instanceof BeanDefinitionRegistry) {
+			// DefaultListableBeanFactory实现了BeanDefinitionRegistry，所以会进这里
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			// 常规的PostProcessors，即没有实现BeanDefinitionRegistryPostProcessor的那些。
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+			// 注册表PostProcessors，即实现了BeanDefinitionRegistryPostProcessor的那些。
+			// BeanDefinitionRegistryPostProcessor继承自BeanFactoryPostProcessor，是它的一个扩展。
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
+					/**
+					 * 让BeanDefinitionRegistryPostProcessor个性化的处理这个BeanDefinition注册表
+					 */
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
+					// 添加到列表里
 					registryProcessors.add(registryProcessor);
 				}
 				else {
+					// 添加到常规列表里
 					regularPostProcessors.add(postProcessor);
 				}
 			}

@@ -242,6 +242,17 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	 * will always be applied after programmatically registered ones.
 	 * @param beanPostProcessor the post-processor to register
 	 */
+	/**
+	 * 添加一个新的BeanPostProcessor，它将应用于该工厂创建的bean。在工厂配置期间调用。
+	 *
+	 * 注意：此处提交的beanPostProcessor将按照注册顺序应用；
+	 * 通过实现org.springframework.core.Ordered接口表示的任何排序语义都将被忽略。
+	 *
+	 * 请注意，自动检测到的后处理器（例如，作为ApplicationContext中的bean）将始终被应用于以编程方式注册后的处理器。
+	 * （就是说自动发现的BeanPostProcessor执行顺序总是在显示添加的BeanPostProcessor之后咯？）
+	 *
+	 * @param beanPostProcessor
+	 */
 	void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
 	/**

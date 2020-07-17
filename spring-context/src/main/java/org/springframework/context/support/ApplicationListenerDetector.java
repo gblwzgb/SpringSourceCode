@@ -43,12 +43,23 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 4.3.4
  */
+
+/**
+ * BeanPostProcessor，用于检测实现ApplicationListener接口的bean。
+ * 这将捕获getBeanNamesForType和仅对顶级bean有效的相关操作无法可靠检测到的bean。
+ *
+ * 使用标准Java序列化，此后处理器将不会作为DisposableBeanAdapter的一部分进行序列化。
+ * 但是，在使用其他序列化机制的情况下，可能根本不会使用DisposableBeanAdapter.writeReplace，
+ * 因此我们将该后处理器的字段状态标记为transient。
+ */
 class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
 
 	private static final Log logger = LogFactory.getLog(ApplicationListenerDetector.class);
 
 	private final transient AbstractApplicationContext applicationContext;
 
+	// K=beanName
+	// V=是否单例
 	private final transient Map<String, Boolean> singletonNames = new ConcurrentHashMap<>(256);
 
 
@@ -71,14 +82,18 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
 		if (bean instanceof ApplicationListener) {
 			// potentially not detected as a listener by getBeanNamesForType retrieval
+			// getBeanNamesForType检索可能未将其检测为侦听器
 			Boolean flag = this.singletonNames.get(beanName);
 			if (Boolean.TRUE.equals(flag)) {
 				// singleton bean (top-level or inner): register on the fly
+				// 单例bean（顶级或内部）：动态注册
+				// todo：为啥是顶级或内部？
 				this.applicationContext.addApplicationListener((ApplicationListener<?>) bean);
 			}
 			else if (Boolean.FALSE.equals(flag)) {
 				if (logger.isWarnEnabled() && !this.applicationContext.containsBean(beanName)) {
 					// inner bean with other scope - can't reliably process events
+					// 内部bean有其他的scope，无法可靠地处理事件
 					logger.warn("Inner bean '" + beanName + "' implements ApplicationListener interface " +
 							"but is not reachable for event multicasting by its containing ApplicationContext " +
 							"because it does not have singleton scope. Only top-level listener beans are allowed " +
