@@ -23,6 +23,12 @@ import org.springframework.aop.TargetClassAware;
 import org.springframework.aop.TargetSource;
 
 /**
+ * 由包含AOP代理工厂配置的类实现的接口。此配置包括拦截器和其他advice，Advisors以及代理接口。
+ *
+ * 从Spring获得的任何AOP代理都可以转换为该接口，以允许对其AOP advice进行操作。
+ */
+
+/**
  * Interface to be implemented by classes that hold the configuration
  * of a factory of AOP proxies. This configuration includes the
  * Interceptors and other advice, Advisors, and the proxied interfaces.
@@ -46,18 +52,21 @@ public interface Advised extends TargetClassAware {
 	/**
 	 * Are we proxying the full target class instead of specified interfaces?
 	 */
+	// 我们是在代理完整的目标类而不是指定的接口吗？
 	boolean isProxyTargetClass();
 
 	/**
 	 * Return the interfaces proxied by the AOP proxy.
 	 * <p>Will not include the target class, which may also be proxied.
 	 */
+	// 返回由AOP代理代理的接口。将不包括目标类别，也可以将其作为代理。
 	Class<?>[] getProxiedInterfaces();
 
 	/**
 	 * Determine whether the given interface is proxied.
 	 * @param intf the interface to check
 	 */
+	// 确定是否代理给定的接口。
 	boolean isInterfaceProxied(Class<?> intf);
 
 	/**
@@ -65,13 +74,21 @@ public interface Advised extends TargetClassAware {
 	 * <p>Only works if the configuration isn't {@linkplain #isFrozen frozen}.
 	 * @param targetSource new TargetSource to use
 	 */
+	// 更改此Advised对象使用的TargetSource。仅在未冻结配置的情况下有效。
 	void setTargetSource(TargetSource targetSource);
 
 	/**
 	 * Return the {@code TargetSource} used by this {@code Advised} object.
 	 */
+	// 返回此Advised对象使用的TargetSource。
 	TargetSource getTargetSource();
 
+	/**
+	 * 设置代理是否应由AOP框架公开为ThreadLocal以便通过AopContext类进行检索。
+	 * 如果advised对象需要在应用建议的情况下自行调用方法，则可能需要公开代理。
+	 * 否则，如果advised对象对此调用方法，则不会应用任何advice。
+	 * 默认值为false，以获得最佳性能。
+	 */
 	/**
 	 * Set whether the proxy should be exposed by the AOP framework as a
 	 * {@link ThreadLocal} for retrieval via the {@link AopContext} class.
@@ -92,6 +109,10 @@ public interface Advised extends TargetClassAware {
 	 */
 	boolean isExposeProxy();
 
+	/**
+	 * 设置此代理配置是否已预先过滤，以使其仅包含适用的顾问程序（与该代理的目标类匹配）。
+	 * 默认值为"false"。如果已经对顾问程序进行了预过滤，则将其设置为"true"，这意味着在为代理调用构建实际的顾问程序链时可以跳过ClassFilter检查。
+	 */
 	/**
 	 * Set whether this proxy configuration is pre-filtered so that it only
 	 * contains applicable advisors (matching this proxy's target class).

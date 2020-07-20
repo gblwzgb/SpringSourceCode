@@ -44,6 +44,12 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 
 /**
+ * 工厂的抽象基类，这些工厂可以使用符合AspectJ 5注释语法的类的给定AspectJ类来创建Spring AOP Advisor。
+ *
+ * 此类处理注释解析和验证功能。它实际上并不会生成Spring AOP Advisor，后者会延迟到子类。
+ */
+
+/**
  * Abstract base class for factories that can create Spring AOP Advisors
  * given AspectJ classes from classes honoring the AspectJ 5 annotation syntax.
  *

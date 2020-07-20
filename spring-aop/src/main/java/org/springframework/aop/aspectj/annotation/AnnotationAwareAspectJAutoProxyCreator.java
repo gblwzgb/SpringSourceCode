@@ -107,6 +107,15 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		// proxied by that interface and fail at runtime as the advice method is not
 		// defined on the interface. We could potentially relax the restriction about
 		// not advising aspects in the future.
+		// 以前我们在构造函数中设置了ProxyTargetClass(true)，但是影响范围太广。
+		// 相反，我们现在重写isInfrastructureClass以避免代理方面。
+		// 我对此并不完全满意，因为没有充分的理由不advise aspects，
+		// 除非它会导致advice调用通过代理进行，并且如果切面实现了例如Ordered接口，
+		// 它将被该接口代理并在以下位置失败运行时，因为没有在接口上定义advice方法。我们将来可能会放宽对不advising aspects的限制。
+
+		// 以下两种判断，代表是基础Bean
+		// 1、实现了Advice、Pointcut、Advisor、AopInfrastructureBean之一
+		// 2、有@Aspect注解
 		return (super.isInfrastructureClass(beanClass) ||
 				(this.aspectJAdvisorFactory != null && this.aspectJAdvisorFactory.isAspect(beanClass)));
 	}

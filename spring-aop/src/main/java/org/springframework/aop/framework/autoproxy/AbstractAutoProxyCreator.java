@@ -133,6 +133,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
+	// 提前暴露引用的代理对象
 	private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
 
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
@@ -242,6 +243,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
+	// 这个一定要自己看方法定义，才能知道下面两个if为啥返回null。。
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -259,7 +261,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Create proxy here if we have a custom TargetSource.
 		// Suppresses unnecessary default instantiation of the target bean:
 		// The TargetSource will handle target instances in a custom fashion.
+		// 如果我们有自定义的TargetSource，请在此处创建代理。抑制目标Bean的不必要的默认实例化：TargetSource将以自定义方式处理目标实例。
+
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+		// 业务代码一般不用这个
 		if (targetSource != null) {
 			if (StringUtils.hasLength(beanName)) {
 				this.targetSourcedBeans.add(beanName);
@@ -303,7 +308,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			// 进这个if有两种情况：
 			// 1、remove掉的value为null，没有值，没有发生循环依赖（没有提前暴露引用出去，即没有wrapIfNecessary过），所以这里要把bean给wrap一下。
-			// 2、前面有其他的BeanPostProcessor，在执行postProcess*的时候，偷梁换柱了（比如自定义的AOP代理），
+			// 2、前面有其他的BeanPostProcessor，在执行postProcess*的时候，偷梁换柱了（比如自定义的AOP代理），这里包装一下。至于提前暴露的代理对象引用，和最终的引用版本不一致问题，由外层解决。
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				// 提前暴露出去的对象，和当前传进来的bean不一致，包装一下当前bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
@@ -346,14 +351,17 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			return bean;
 		}
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
+			// 如果不是一个advised bean，则代表无需代理，直接返回即可
 			return bean;
 		}
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
+			// 如果不是一个advised bean，则代表无需代理，记录一下缓存，然后返回
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
-		// Create proxy if we have advice.
+		// Create proxy if we have advice.  （如果我们有advice，创建代理）
+		// FIXME：看到这里
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
@@ -367,6 +375,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return bean;
 	}
 
+	/**
+	 * 返回给定的bean类是否表示不应代理的基础结构类。
+	 * 默认实现将Advices，Advisor和AopInfrastructureBeans视为基础结构类。
+	 */
 	/**
 	 * Return whether the given bean class represents an infrastructure class
 	 * that should never be proxied.

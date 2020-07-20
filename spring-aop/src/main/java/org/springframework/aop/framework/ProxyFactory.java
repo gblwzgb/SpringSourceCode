@@ -23,6 +23,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
+ * 用于AOP代理的工厂，以编程方式使用，而不是通过bean工厂中的声明性设置。
+ * 此类提供了一种在自定义用户代码中获取和配置AOP代理实例的简单方法。
+ *
+ * 使用方式demo：AopProxyUtilsTests
+ */
+
+/**
  * Factory for AOP proxies for programmatic use, rather than via declarative
  * setup in a bean factory. This class provides a simple way of obtaining
  * and configuring AOP proxy instances in custom user code.
@@ -42,15 +49,26 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	}
 
 	/**
+	 * 创建一个新的ProxyFactory。将代理真实对象实现的所有接口。
+	 *
+	 * @param target 要代理的真实对象
+	 */
+	/**
 	 * Create a new ProxyFactory.
 	 * <p>Will proxy all interfaces that the given target implements.
 	 * @param target the target object to be proxied
 	 */
 	public ProxyFactory(Object target) {
+		// 真实对象
 		setTarget(target);
+		// 代理对象会实现真实对象的所有接口
 		setInterfaces(ClassUtils.getAllInterfaces(target));
 	}
 
+	/**
+	 * 创建一个新的ProxyFactory。没有真实对象，只有接口。必须添加拦截器。
+	 * @param proxyInterfaces 代理对象应实现的接口
+	 */
 	/**
 	 * Create a new ProxyFactory.
 	 * <p>No target, only interfaces. Must add interceptors.
@@ -60,6 +78,13 @@ public class ProxyFactory extends ProxyCreatorSupport {
 		setInterfaces(proxyInterfaces);
 	}
 
+	/**
+	 * 为给定的接口和拦截器创建一个新的ProxyFactory。
+	 * 方便的方法，用于为单个拦截器创建代理，假设拦截器自己处理所有调用，而不是像远程处理代理一样委派给目标。
+	 *
+	 * @param proxyInterface 代理对象应实现的接口
+	 * @param interceptor 代理对象应调用的拦截器
+	 */
 	/**
 	 * Create a new ProxyFactory for the given interface and interceptor.
 	 * <p>Convenience method for creating a proxy for a single interceptor,
@@ -80,11 +105,19 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * @param targetSource the TargetSource that the proxy should invoke
 	 */
 	public ProxyFactory(Class<?> proxyInterface, TargetSource targetSource) {
+		// 代理对象要实现的接口
 		addInterface(proxyInterface);
+		// 要代理的真实对象
 		setTargetSource(targetSource);
 	}
 
 
+	/**
+	 * 根据此工厂中的设置创建一个新的代理。可以反复调用。
+	 * 如果我们添加或删除了接口，效果会有所不同。
+	 * 可以添加和删除拦截器。
+	 * 使用默认的类加载器：通常，线程上下文类加载器（如果需要创建代理）。
+	 */
 	/**
 	 * Create a new proxy according to the settings in this factory.
 	 * <p>Can be called repeatedly. Effect will vary if we've added
@@ -106,6 +139,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * (or {@code null} for the low-level proxy facility's default)
 	 * @return the proxy object
 	 */
+	// 使用指定的类加载器创建代理
 	public Object getProxy(@Nullable ClassLoader classLoader) {
 		return createAopProxy().getProxy(classLoader);
 	}
@@ -123,6 +157,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getProxy(Class<T> proxyInterface, Interceptor interceptor) {
+		// 静态方法，简化使用
 		return (T) new ProxyFactory(proxyInterface, interceptor).getProxy();
 	}
 
@@ -136,6 +171,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getProxy(Class<T> proxyInterface, TargetSource targetSource) {
+		// 静态方法，简化使用
 		return (T) new ProxyFactory(proxyInterface, targetSource).getProxy();
 	}
 
@@ -146,6 +182,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * @return the proxy object
 	 */
 	public static Object getProxy(TargetSource targetSource) {
+		// 静态方法，简化使用
 		if (targetSource.getTargetClass() == null) {
 			throw new IllegalArgumentException("Cannot create class proxy for TargetSource with null target class");
 		}

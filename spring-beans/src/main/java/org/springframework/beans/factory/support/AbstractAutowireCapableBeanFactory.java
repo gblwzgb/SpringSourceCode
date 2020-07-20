@@ -1176,8 +1176,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				// todo: AOP??
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
+					// 实例化之前干一些事情
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
+						// 初始化之后干一些事情
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
 				}

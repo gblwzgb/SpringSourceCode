@@ -17,6 +17,10 @@
 package org.aopalliance.aop;
 
 /**
+ * advice的标签接口。实现可以是任何类型的advice，例如拦截器。
+ */
+
+/**
  * Tag interface for Advice. Implementations can be any type
  * of advice, such as Interceptors.
  *

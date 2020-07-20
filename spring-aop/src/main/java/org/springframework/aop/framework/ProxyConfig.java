@@ -46,6 +46,14 @@ public class ProxyConfig implements Serializable {
 
 
 	/**
+	 * 设置是否直接代理目标类，而不是仅代理特定的接口。默认值为"false"。
+	 *
+	 * 将此设置为"true"可强制代理TargetSource的公开目标类。
+	 * 如果该目标类是接口，则将为给定接口创建一个JDK代理。如果该目标类是任何其他类，则将为给定类创建CGLIB代理。
+	 *
+	 * 注意：根据具体代理工厂的配置，如果未指定接口（并且未激活接口自动检测），则也将应用代理目标类行为。
+	 */
+	/**
 	 * Set whether to proxy the target class directly, instead of just proxying
 	 * specific interfaces. Default is "false".
 	 * <p>Set this to "true" to force proxying for the TargetSource's exposed
@@ -86,10 +94,15 @@ public class ProxyConfig implements Serializable {
 	/**
 	 * Return whether proxies should perform aggressive optimizations.
 	 */
+	// 返回代理是否应执行积极的优化。
 	public boolean isOptimize() {
 		return this.optimize;
 	}
 
+	/**
+	 * 设置是否应防止将此配置创建的代理强制转换为Advised来查询代理状态。
+	 * 默认值为"false"，表示任何AOP代理都可以转换为Advised。
+	 */
 	/**
 	 * Set whether proxies created by this configuration should be prevented
 	 * from being cast to {@link Advised} to query proxy status.
