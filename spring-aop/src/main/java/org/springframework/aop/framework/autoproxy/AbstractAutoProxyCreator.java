@@ -236,7 +236,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
+		// 发生了循环依赖了，需要提前暴露，记录一下
 		this.earlyProxyReferences.put(cacheKey, bean);
+		// AOP包装一下，这里要和postProcessAfterInitialization方法一起看
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
@@ -287,15 +289,23 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * 如果Bean被子类标识为要代理的bean，则使用配置的拦截器创建代理。
+	 */
+	/**
 	 * Create a proxy with the configured interceptors if the bean is
 	 * identified as one to proxy by the subclass.
 	 * @see #getAdvicesAndAdvisorsForBean
 	 */
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
+		// 传进来的bean是原始对象，或者经过其他BeanPostProcessor偷梁换柱过的。
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			// 进这个if有两种情况：
+			// 1、remove掉的value为null，没有值，没有发生循环依赖（没有提前暴露引用出去，即没有wrapIfNecessary过），所以这里要把bean给wrap一下。
+			// 2、前面有其他的BeanPostProcessor，在执行postProcess*的时候，偷梁换柱了（比如自定义的AOP代理），
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+				// 提前暴露出去的对象，和当前传进来的bean不一致，包装一下当前bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}

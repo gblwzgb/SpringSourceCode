@@ -17,6 +17,12 @@
 package org.springframework.beans.factory;
 
 /**
+ * 由BeanFactory设置完所有属性后需要作出反应的bean所实现的接口：执行自定义初始化，或仅检查是否已设置所有必填属性。
+ *
+ * 实现InitializingBean的另一种方法是指定自定义init方法，例如在XML bean定义中。有关所有bean生命周期方法的列表，请参见BeanFactory javadocs。
+ */
+
+/**
  * Interface to be implemented by beans that need to react once all their properties
  * have been set by a {@link BeanFactory}: e.g. to perform custom initialization,
  * or merely to check that all mandatory properties have been set.

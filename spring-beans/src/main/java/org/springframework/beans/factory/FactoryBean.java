@@ -19,6 +19,26 @@ package org.springframework.beans.factory;
 import org.springframework.lang.Nullable;
 
 /**
+ * 由BeanFactory中使用的对象实现的接口，这些对象本身就是单个对象的工厂。
+ * 如果bean实现此接口，则它将用作暴露对象的工厂，而不是直接用作将自身公开的bean实例。
+ *
+ * 注意：实现此接口的bean不能用作普通bean。 FactoryBean以bean样式定义，但是为bean引用暴露的对象（getObject()）始终是它创建的对象。
+ *
+ * FactoryBeans可以支持单例和原型，并且可以按需延迟创建对象，也可以在启动时急于创建对象。
+ * SmartFactoryBean接口允许公开更细粒度的行为元数据。
+ *
+ * 此接口在框架本身中被大量使用，例如用于AOP org.springframework.aop.framework.ProxyFactoryBean或org.springframework.jndi.JndiObjectFactoryBean。
+ * 它也可以用于自定义组件。但是，这仅在基础结构代码中很常见。
+ *
+ * FactoryBean是程序性合同。实现不应依赖于注释驱动的注入或其他反射功能。
+ * getObjectType()，getObject()调用可能会在引导过程的早期到达，甚至在任何后处理器设置之前。
+ * 如果您需要访问其他bean，请实现BeanFactoryAware并以编程方式获取它们。
+ *
+ * 最后，FactoryBean对象参与包含BeanFactory的Bean创建同步。
+ * 除了出于FactoryBean自身（或类似方式）内部的延迟初始化的目的之外，通常不需要内部同步。
+ */
+
+/**
  * Interface to be implemented by objects used within a {@link BeanFactory} which
  * are themselves factories for individual objects. If a bean implements this
  * interface, it is used as a factory for an object to expose, not directly as a

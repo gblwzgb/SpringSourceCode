@@ -43,7 +43,8 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	/** Logger available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** Map from alias to canonical name. */
+	/** Map from alias to canonical name. */  // 从别名映射到规范名称
+	// K=别名，V=规范名称
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
 
@@ -210,6 +211,12 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * Determine the raw name, resolving aliases to canonical names.
 	 * @param name the user-specified name
 	 * @return the transformed name
+	 */
+	/**
+	 * 确定原始名称，将别名解析为规范名称。
+	 *
+	 * @param name 用户指定的名称
+	 * @return 转换后的名称
 	 */
 	public String canonicalName(String name) {
 		String canonicalName = name;

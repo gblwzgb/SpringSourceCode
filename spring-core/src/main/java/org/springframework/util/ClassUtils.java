@@ -97,6 +97,8 @@ public abstract class ClassUtils {
 	 * Map with primitive type name as key and corresponding primitive
 	 * type as value, for example: "int" -> "int.class".
 	 */
+	// K=基本类型，如int
+	// V=基本类型对应的class，如int.class
 	private static final Map<String, Class<?>> primitiveTypeNameMap = new HashMap<>(32);
 
 	/**
@@ -164,6 +166,14 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * 返回要使用的默认ClassLoader：通常是线程上下文ClassLoader（如果可用）；
+	 * 否则，返回默认值。加载ClassUtils类的ClassLoader将用作后备。
+	 * 如果您打算在明显希望使用非null ClassLoader引用的情况下使用线程上下文ClassLoader，
+	 * 请调用此方法：例如，用于类路径资源加载（但不一定适用于Class.forName，该类接受null的ClassLoader引用为好）。
+	 *
+	 * @return 默认的ClassLoader（即使无法访问系统ClassLoader，也只能为null）
+	 */
+	/**
 	 * Return the default ClassLoader to use: typically the thread context
 	 * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
 	 * class will be used as fallback.
@@ -223,6 +233,16 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Class.forName()的替换，该类还返回基本类型（例如"int"）和数组类名称（例如"String []"）的Class实例。
+	 * 此外，它还能够解析Java源样式的内部类名称（例如，"java.lang.Thread.State"而不是"java.lang.Thread$State"）。
+	 *
+	 * @param name Class的名称
+	 * @param classLoader 要使用的类加载器，可能是null，意味着要用默认的类加载器了
+	 * @return 一个Class实例
+	 * @throws ClassNotFoundException
+	 * @throws LinkageError
+	 */
+	/**
 	 * Replacement for {@code Class.forName()} that also returns Class instances
 	 * for primitives (e.g. "int") and array class names (e.g. "String[]").
 	 * Furthermore, it is also capable of resolving inner class names in Java source
@@ -248,6 +268,9 @@ public abstract class ClassUtils {
 			return clazz;
 		}
 
+		/**
+		 * 下面三个if，处理三种情况下的String[]
+		 */
 		// "java.lang.String[]" style arrays
 		if (name.endsWith(ARRAY_SUFFIX)) {
 			String elementClassName = name.substring(0, name.length() - ARRAY_SUFFIX.length());
@@ -269,11 +292,13 @@ public abstract class ClassUtils {
 			return Array.newInstance(elementClass, 0).getClass();
 		}
 
+		// 没有就使用默认的
 		ClassLoader clToUse = classLoader;
 		if (clToUse == null) {
 			clToUse = getDefaultClassLoader();
 		}
 		try {
+			// 根据类名，加载Class实例
 			return Class.forName(name, false, clToUse);
 		}
 		catch (ClassNotFoundException ex) {
@@ -441,6 +466,13 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * 根据JVM对原始类的命名规则，将给定的类名称解析为原始类。还支持原始数组的JVM内部类名称。
+	 * 不支持原始数组的后缀“ []”；这仅受forName（String，ClassLoader）支持。
+	 *
+	 * @param name 潜在基本类型类的名称
+	 * @return 基本类型类，如果名称不表示基本类型类或基本类型数组类，则返回null
+	 */
+	/**
 	 * Resolve the given class name as primitive class, if appropriate,
 	 * according to the JVM's naming rules for primitive classes.
 	 * <p>Also supports the JVM's internal class names for primitive arrays.
@@ -452,9 +484,12 @@ public abstract class ClassUtils {
 	 */
 	@Nullable
 	public static Class<?> resolvePrimitiveClassName(@Nullable String name) {
+		/**
+		 * 假如传入的是int，则返回的是int.class
+		 */
 		Class<?> result = null;
 		// Most class names will be quite long, considering that they
-		// SHOULD sit in a package, so a length check is worthwhile.
+		// SHOULD sit in a package, so a length check is worthwhile.  （考虑到应该将它们放在包装中，大多数类名都将很长，因此值得进行长度检查。）
 		if (name != null && name.length() <= 8) {
 			// Could be a primitive - likely.
 			result = primitiveTypeNameMap.get(name);

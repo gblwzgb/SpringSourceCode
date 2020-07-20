@@ -850,13 +850,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		// 遍历一个副本以允许使用init方法，这些方法依次注册新的bean definitions。 尽管这可能不是常规工厂bootstrap的一部分，但可以正常运行。
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
-		// Trigger initialization of all non-lazy singleton beans...
+		// Trigger initialization of all non-lazy singleton beans...  （触发所有非惰性单例bean的初始化...）
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
-			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
-				if (isFactoryBean(beanName)) {
+			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {  // 非抽象类、是单例、非懒加载
+				if (isFactoryBean(beanName)) {  // 是一个FactoryBean
+					// 拼上一个&前缀
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
@@ -875,16 +877,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						}
 					}
 				}
-				else {
+				else {  // 不是FactoryBean
 					getBean(beanName);
 				}
 			}
 		}
 
-		// Trigger post-initialization callback for all applicable beans...
+		// Trigger post-initialization callback for all applicable beans...  (触发所有适用bean的初始化后回调...)
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
-			if (singletonInstance instanceof SmartInitializingSingleton) {
+			if (singletonInstance instanceof SmartInitializingSingleton) {  // bean实现了SmartInitializingSingleton接口
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
 				if (System.getSecurityManager() != null) {
 					AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
@@ -893,6 +895,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}, getAccessControlContext());
 				}
 				else {
+					// 调用后置处理
 					smartSingleton.afterSingletonsInstantiated();
 				}
 			}

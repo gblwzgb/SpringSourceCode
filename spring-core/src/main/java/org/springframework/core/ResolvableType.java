@@ -43,6 +43,24 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 封装Java类型，提供对超类型，接口和通用参数的访问，以及最终解析为类的能力。
+ *
+ * ResolvableTypes可以从字段，方法参数，方法返回值或类中获取。
+ * 该类上的大多数方法本身都会返回ResolvableTypes，从而可以轻松导航。比如：
+ *    private HashMap<Integer, List<String>> myMap;
+ *
+ *    public void example() {
+ *        ResolvableType t = ResolvableType.forField(getClass().getDeclaredField("myMap"));
+ *        t.getSuperType(); // AbstractMap<Integer, List<String>>
+ *        t.asMap(); // Map<Integer, List<String>>
+ *        t.getGeneric(0).resolve(); // Integer
+ *        t.getGeneric(1).resolve(); // List
+ *        t.getGeneric(1); // List<String>
+ *        t.resolveGeneric(1, 0); // String
+ *    }
+ */
+
+/**
  * Encapsulates a Java {@link java.lang.reflect.Type}, providing access to
  * {@link #getSuperType() supertypes}, {@link #getInterfaces() interfaces}, and
  * {@link #getGeneric(int...) generic parameters} along with the ability to ultimately

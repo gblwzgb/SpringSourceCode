@@ -183,6 +183,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	private MethodOverrides methodOverrides = new MethodOverrides();
 
+	// todo：看下什么时候设置的，调用是在org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeCustomInitMethod
 	@Nullable
 	private String initMethodName;
 
@@ -440,6 +441,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	}
 
 	/**
+	 * 确定包装的bean的类，必要时通过指定的类名解析它。
+	 * 使用已经解析的bean类调用时，还将从其名称中重新加载指定的Class。
+	 *
+	 * @param classLoader 用于解析（潜在）类名称的ClassLoader
+	 * @return 解析后的bean Class
+	 * @throws ClassNotFoundException 如果class name无法被解析
+	 */
+	/**
 	 * Determine the class of the wrapped bean, resolving it from a
 	 * specified class name if necessary. Will also reload a specified
 	 * Class from its name when called with the bean class already resolved.
@@ -449,10 +458,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	@Nullable
 	public Class<?> resolveBeanClass(@Nullable ClassLoader classLoader) throws ClassNotFoundException {
+		// 获取类名
 		String className = getBeanClassName();
 		if (className == null) {
 			return null;
 		}
+		// 加载Class实例，会覆盖当前的Class实例
 		Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
 		this.beanClass = resolvedClass;
 		return resolvedClass;
@@ -992,6 +1003,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		this.synthetic = synthetic;
 	}
 
+	/**
+	 * 返回此bean定义是否是“合成的”，即不是由应用程序本身定义的。
+	 */
 	/**
 	 * Return whether this bean definition is 'synthetic', that is,
 	 * not defined by the application itself.

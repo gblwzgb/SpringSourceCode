@@ -19,6 +19,19 @@ package org.springframework.beans;
 import java.beans.PropertyDescriptor;
 
 /**
+ * Spring的低级JavaBeans基础结构的核心接口。
+ *
+ * 通常不直接使用，而是通过org.springframework.beans.factory.BeanFactory或org.springframework.validation.DataBinder隐式使用。
+ *
+ * 提供分析和操作标准JavaBean的操作：能够（单独或批量）获取和设置属性值，获取属性描述符以及查询属性的可读性/可写性。
+ *
+ * 此接口支持嵌套属性，使子属性上的属性设置达到无限深度。
+ *
+ * BeanWrapper的"extractOldValueForEditor"设置的默认值为"false"，以避免由getter方法调用引起的副作用。
+ * 将此选项设置为"true"，以向自定义编辑器公开当前属性值。
+ */
+
+/**
  * The central interface of Spring's low-level JavaBeans infrastructure.
  *
  * <p>Typically not used directly but rather implicitly via a
