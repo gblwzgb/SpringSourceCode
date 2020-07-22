@@ -19,6 +19,18 @@ package org.springframework.transaction;
 import org.springframework.lang.Nullable;
 
 /**
+ * 定义与Spring兼容的事务属性的接口。基于类似于EJB CMT属性的传播行为定义。
+ *
+ * 请注意，除非开始实际的新事务，否则隔离级别和超时设置不会applied。
+ * 由于只有PROPAGATION_REQUIRED，PROPAGATION_REQUIRES_NEW和PROPAGATION_NESTED会导致这种情况，
+ * 因此在其他情况下指定这些设置通常是没有意义的。此外，请注意，并非所有的事务管理器都将支持这些高级功能，
+ * 因此在给定非默认值时可能会引发相应的异常。
+ *
+ * read-only标志适用于任何事务上下文，无论是由实际资源事务支持还是在资源级别以非事务方式进行操作。
+ * 在后一种情况下，该标志仅适用于应用程序内的托管资源，例如Hibernate Session。
+ */
+
+/**
  * Interface that defines Spring-compliant transaction properties.
  * Based on the propagation behavior definitions analogous to EJB CMT attributes.
  *

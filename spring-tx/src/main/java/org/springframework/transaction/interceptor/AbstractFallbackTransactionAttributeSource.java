@@ -80,6 +80,14 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 
 
 	/**
+	 * 确定此方法调用的事务属性。如果未找到方法属性，则默认为类的transaction属性。
+	 *
+	 * @param method 要内省的方法
+	 * @param targetClass the target class (may be {@code null},
+	 * in which case the declaring class of the method must be used)
+	 * @return 此方法的TransactionAttribute；如果该方法不是事务性的，则为null
+	 */
+	/**
 	 * Determine the transaction attribute for this method invocation.
 	 * <p>Defaults to the class's transaction attribute if no method attribute is found.
 	 * @param method the method for the current invocation (never {@code null})
@@ -91,6 +99,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	@Nullable
 	public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
 		if (method.getDeclaringClass() == Object.class) {
+			// 如果方法属于Object类，则没有
 			return null;
 		}
 
@@ -112,6 +121,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
 			if (txAttr == null) {
+				// 如果没有找到@Transactional注解，放入缓存
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
 			else {
@@ -122,6 +132,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 				if (logger.isTraceEnabled()) {
 					logger.trace("Adding transactional method '" + methodIdentification + "' with attribute: " + txAttr);
 				}
+				// 放入缓存
 				this.attributeCache.put(cacheKey, txAttr);
 			}
 			return txAttr;
@@ -141,6 +152,11 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	}
 
 	/**
+	 * 与getTransactionAttribute相同的签名，但不缓存结果。
+	 * getTransactionAttribute实际上是此方法的缓存装饰器。
+	 * 从4.1.8版本开始，可以覆盖此方法。
+	 */
+	/**
 	 * Same signature as {@link #getTransactionAttribute}, but doesn't cache the result.
 	 * {@link #getTransactionAttribute} is effectively a caching decorator for this method.
 	 * <p>As of 4.1.8, this method can be overridden.
@@ -151,34 +167,41 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
 		// Don't allow no-public methods as required.
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
+			// 被AnnotationTransactionAttributeSource覆盖成：默认只取public方法了。
+			// 所以非public方法，会进这里
 			return null;
 		}
 
 		// The method may be on an interface, but we need attributes from the target class.
 		// If the target class is null, the method will be unchanged.
+		// 该方法可能在接口上，但是我们需要目标类的属性。如果目标类为null，则该方法将保持不变。
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
-		// First try is the method in the target class.
+		// First try is the method in the target class.  （首先尝试的是目标类中的方法。）
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
+			// 如果发现【方法】有@Transactional注解，则会把注解解析成TransactionAttribute，然后返回
 			return txAttr;
 		}
 
-		// Second try is the transaction attribute on the target class.
+		// Second try is the transaction attribute on the target class.  （第二次尝试是目标类上的transaction属性。）
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
+			// 如果发现【类】上有@Transactional注解，则会把注解解析成TransactionAttribute，然后返回
 			return txAttr;
 		}
 
-		if (specificMethod != method) {
-			// Fallback is to look at the original method.
+		if (specificMethod != method) {  // 不等于，说明被代理了，比如在一个接口的方法上设置了一个@Transactional？
+			// Fallback is to look at the original method.  （回退是看原始方法。）
 			txAttr = findTransactionAttribute(method);
 			if (txAttr != null) {
+				// 从原始方法里找到@Transactional注解的话，则会把注解解析成TransactionAttribute，然后返回
 				return txAttr;
 			}
-			// Last fallback is the class of the original method.
+			// Last fallback is the class of the original method.  （最后一手准备是原始方法的类。）
 			txAttr = findTransactionAttribute(method.getDeclaringClass());
 			if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
+				// 如果从原始方法的【类】上找到@Transactional注解的话，则会把注解解析成TransactionAttribute，然后返回
 				return txAttr;
 			}
 		}

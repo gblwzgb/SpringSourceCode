@@ -31,6 +31,15 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
+ * TransactionAttributeSource接口的实现，用于处理JDK 1.5+注释格式的事务元数据。
+ *
+ * 此类读取Spring的JDK 1.5+ Transactional注解，并将相应的事务属性公开给Spring的事务基础结构。
+ * 还支持JTA 1.2的javax.transaction.Transactional和EJB3的javax.ejb.TransactionAttribute注解（如果存在）。
+ * 此类也可用作自定义TransactionAttributeSource的基类，或通过TransactionAnnotationParser策略进行自定义。
+ */
+// 注解事务属性源
+
+/**
  * Implementation of the
  * {@link org.springframework.transaction.interceptor.TransactionAttributeSource}
  * interface for working with transaction metadata in JDK 1.5+ annotation format.

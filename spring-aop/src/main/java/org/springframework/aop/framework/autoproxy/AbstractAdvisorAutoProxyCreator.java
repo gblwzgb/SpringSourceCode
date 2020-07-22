@@ -72,9 +72,10 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-
+		// 获取适用于当前bean Class的Advisors
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
 		if (advisors.isEmpty()) {
+			// 如果没有适合的，则不进行代理
 			return DO_NOT_PROXY;
 		}
 		return advisors.toArray();
@@ -94,10 +95,14 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		// 获取候选的Advisors，一种是实现了Advisor接口的，一种是从bean Class的方法上是否有@AspectJ注解解析出来的
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 从候选的Advisors中，精挑细选出适合这个bean Class的Advisor（表达式能匹配上的）
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		// 给子类一个机会，加一些Advisor进来，这里主要是加了一个ExposeInvocationInterceptor
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
+			// 给Advisors排序
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
 		return eligibleAdvisors;
@@ -113,6 +118,9 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	}
 
 	/**
+	 * 搜索给定的候选Advisor，以查找可以应用于指定bean的所有Advisor。
+	 */
+	/**
 	 * Search the given candidate Advisors to find all Advisors that
 	 * can apply to the specified bean.
 	 * @param candidateAdvisors the candidate Advisors
@@ -124,11 +132,13 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	protected List<Advisor> findAdvisorsThatCanApply(
 			List<Advisor> candidateAdvisors, Class<?> beanClass, String beanName) {
 
+		// 放置到ThreadLocal中
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {
+			// 清除ThreadLocal
 			ProxyCreationContext.setCurrentProxiedBeanName(null);
 		}
 	}

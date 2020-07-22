@@ -22,6 +22,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 
 /**
+ * 用于解析已知事务注解类型的策略接口。
+ * AnnotationTransactionAttributeSource委托给此类解析器以支持特定的注解类型，
+ * 例如Spring自己的Transactional，JTA 1.2的javax.transaction.Transactional或EJB3的javax.ejb.TransactionAttribute。
+ */
+// 事务注解解析器，三种注解，对应三种解析器，关注SpringTransactionAnnotationParser即可
+
+/**
  * Strategy interface for parsing known transaction annotation types.
  * {@link AnnotationTransactionAttributeSource} delegates to such
  * parsers for supporting specific annotation types such as Spring's own

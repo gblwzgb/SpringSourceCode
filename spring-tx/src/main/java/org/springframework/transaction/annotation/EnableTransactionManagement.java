@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 
+// 开启事务管理，默认使用ProxyTransactionManagementConfiguration
 /**
  * Enables Spring's annotation-driven transaction management capability, similar to
  * the support found in Spring's {@code <tx:*>} XML namespace. To be used on

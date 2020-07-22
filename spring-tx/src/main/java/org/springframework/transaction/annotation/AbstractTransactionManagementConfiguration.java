@@ -33,6 +33,11 @@ import org.springframework.transaction.event.TransactionalEventListenerFactory;
 import org.springframework.util.CollectionUtils;
 
 /**
+ * 抽象的@Configuration类，提供了用于启用Spring的注解驱动的事务管理功能的通用结构。
+ */
+// 抽象事务管理配置类
+
+/**
  * Abstract base {@code @Configuration} class providing common structure for enabling
  * Spring's annotation-driven transaction management capability.
  *
@@ -72,6 +77,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
 		if (configurers.size() > 1) {
 			throw new IllegalStateException("Only one TransactionManagementConfigurer may exist");
 		}
+		// 如果项目中的数据源配置实现了TransactionManagementConfigurer，则返回用户指定的事务管理器
 		TransactionManagementConfigurer configurer = configurers.iterator().next();
 		this.txManager = configurer.annotationDrivenTransactionManager();
 	}

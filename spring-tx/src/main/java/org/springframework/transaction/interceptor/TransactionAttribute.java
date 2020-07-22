@@ -20,6 +20,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.TransactionDefinition;
 
 /**
+ * 此接口将rollbackOn规范添加到TransactionDefinition。
+ * 由于自定义rollbackOn仅适用于AOP，因此它位于AOP相关的事务子包中。
+ */
+// 理解为TransactionDefinition即可，只是扩展了一个rollbackOn
+
+/**
  * This interface adds a {@code rollbackOn} specification to {@link TransactionDefinition}.
  * As custom {@code rollbackOn} is only possible with AOP, it resides in the AOP-related
  * transaction subpackage.

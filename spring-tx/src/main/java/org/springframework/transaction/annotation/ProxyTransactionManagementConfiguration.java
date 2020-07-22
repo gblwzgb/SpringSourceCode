@@ -26,6 +26,10 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
+ * @Configuration类，用于注册启用基于代理的注解驱动的事务管理所需的Spring基础结构Bean。
+ */
+
+/**
  * {@code @Configuration} class that registers the Spring infrastructure beans
  * necessary to enable proxy-based annotation-driven transaction management.
  *
@@ -62,7 +66,9 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public TransactionInterceptor transactionInterceptor(
 			TransactionAttributeSource transactionAttributeSource) {
+		// 创建一个事务拦截器
 		TransactionInterceptor interceptor = new TransactionInterceptor();
+		// 设置一个AnnotationTransactionAttributeSource
 		interceptor.setTransactionAttributeSource(transactionAttributeSource);
 		if (this.txManager != null) {
 			interceptor.setTransactionManager(this.txManager);

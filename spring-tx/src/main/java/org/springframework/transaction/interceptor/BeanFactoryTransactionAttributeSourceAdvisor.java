@@ -21,6 +21,8 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor;
 import org.springframework.lang.Nullable;
 
+// 开启事务管理后，在ProxyTransactionManagementConfiguration.transactionAdvisor中，会创建这个bean
+// 然后aop那层就能通过beanFactory获取到这个Advisor。
 /**
  * Advisor driven by a {@link TransactionAttributeSource}, used to include
  * a transaction advice bean for methods that are transactional.

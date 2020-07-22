@@ -21,6 +21,12 @@ import java.lang.reflect.Method;
 import org.springframework.lang.Nullable;
 
 /**
+ * TransactionInterceptor用于元数据检索的策略接口。
+ *
+ * 实现知道如何从配置，源级别的元数据属性（例如Java 5批注）或其他任何位置获取事务属性。
+ */
+
+/**
  * Strategy interface used by {@link TransactionInterceptor} for metadata retrieval.
  *
  * <p>Implementations know how to source transaction attributes, whether from configuration,
@@ -35,6 +41,11 @@ import org.springframework.lang.Nullable;
  */
 public interface TransactionAttributeSource {
 
+	/**
+	 * 确定给定的类是否是此TransactionAttributeSource的元数据格式的事务属性的候选项。
+	 * 如果此方法返回false，则不会遍历给定类上的方法进行getTransactionAttribute自省。
+	 * 因此，返回false是对不受影响的类的优化，而返回true只是意味着该类需要对给定类上的每个方法分别进行全面自省。
+	 */
 	/**
 	 * Determine whether the given class is a candidate for transaction attributes
 	 * in the metadata format of this {@code TransactionAttributeSource}.
@@ -53,6 +64,13 @@ public interface TransactionAttributeSource {
 		return true;
 	}
 
+	/**
+	 * 返回给定方法的事务属性，如果该方法是非事务性的，则返回null。
+	 *
+	 * @param method 要内省的方法
+	 * @param targetClass 目标类（可以为null，在这种情况下，必须使用方法的声明类）
+	 * @return 匹配的事务属性；如果找不到，则为null
+	 */
 	/**
 	 * Return the transaction attribute for the given method,
 	 * or {@code null} if the method is non-transactional.

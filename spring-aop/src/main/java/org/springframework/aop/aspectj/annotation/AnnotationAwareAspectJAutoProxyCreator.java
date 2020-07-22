@@ -85,6 +85,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
 	}
 
+	// 在父类的AbstractAdvisorAutoProxyCreator.setBeanFactory中调用（复习：实现了BeanFactoryAware，会有PostProcessor来调用setBeanFactory方法，在Bean实例化完成后的初始化阶段）
 	@Override
 	protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		super.initBeanFactory(beanFactory);
@@ -98,10 +99,10 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 
 	@Override
 	protected List<Advisor> findCandidateAdvisors() {
-		// Add all the Spring advisors found according to superclass rules.
+		// Add all the Spring advisors found according to superclass rules.  （添加根据超类规则找到的所有Spring advisors。）
 		List<Advisor> advisors = super.findCandidateAdvisors();
-		// Build Advisors for all AspectJ aspects in the bean factory.
-		if (this.aspectJAdvisorsBuilder != null) {
+		// Build Advisors for all AspectJ aspects in the bean factory.  （Bean工厂中所有AspectJ切面的Advisors。）
+		if (this.aspectJAdvisorsBuilder != null) {  // 这里默认不会为null
 			advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
 		}
 		return advisors;
@@ -156,6 +157,10 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	}
 
 
+	/**
+	 * BeanFactoryAspectJAdvisorsBuilderAdapter的子类，
+	 * 委派给周围的AnnotationAwareAspectJAutoProxyCreator工具。
+	 */
 	/**
 	 * Subclass of BeanFactoryAspectJAdvisorsBuilderAdapter that delegates to
 	 * surrounding AnnotationAwareAspectJAutoProxyCreator facilities.

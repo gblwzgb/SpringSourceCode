@@ -124,13 +124,13 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		validate(aspectClass);
 
 		// We need to wrap the MetadataAwareAspectInstanceFactory with a decorator so that it will only instantiate once.
-		// 我们需要用装饰器包装MetadataAwareAspectInstanceFactory，使其仅实例化一次。
+		// 我们需要用装饰器包装MetadataAwareAspectInstanceFactory，使其仅实例化一次。（单例模式，懒加载的）
 		MetadataAwareAspectInstanceFactory lazySingletonAspectInstanceFactory =
 				new LazySingletonAspectInstanceFactoryDecorator(aspectInstanceFactory);
 
 		List<Advisor> advisors = new ArrayList<>();
 		/**
-		 * 遍历有@Pointcut注解的方法
+		 * 遍历所有不包含@Pointcut注解的方法
 		 */
 		for (Method method : getAdvisorMethods(aspectClass)) {
 			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);
@@ -139,7 +139,8 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 			}
 		}
 
-		// If it's a per target aspect, emit the dummy instantiating aspect.
+		// If it's a per target aspect, emit the dummy instantiating aspect.  （如果它是每个目标切面，则发出虚拟实例化切面。）
+		// 如果切点不为空，且是延迟实例化的
 		if (!advisors.isEmpty() && lazySingletonAspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
 			Advisor instantiationAdvisor = new SyntheticInstantiationAdvisor(lazySingletonAspectInstanceFactory);
 			advisors.add(0, instantiationAdvisor);
@@ -159,7 +160,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 	private List<Method> getAdvisorMethods(Class<?> aspectClass) {
 		final List<Method> methods = new ArrayList<>();
 		ReflectionUtils.doWithMethods(aspectClass, method -> {
-			// Exclude pointcuts
+			// Exclude pointcuts  （排除@Pointcut）
 			if (AnnotationUtils.getAnnotation(method, Pointcut.class) == null) {
 				methods.add(method);
 			}
@@ -200,6 +201,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		// 做些校验
 		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());
 
+		// 获取切点
 		AspectJExpressionPointcut expressionPointcut = getPointcut(
 				candidateAdviceMethod, aspectInstanceFactory.getAspectMetadata().getAspectClass());
 		if (expressionPointcut == null) {
@@ -212,7 +214,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 	/**
 	 *
-	 * @param candidateAdviceMethod 有@Pointcut的方法，但是是候选的
+	 * @param candidateAdviceMethod 没有@Pointcut的方法，但是是候选的
 	 * @param candidateAspectClass 该方法所在的类，有@Aspect注解
 	 * @return
 	 */
@@ -231,7 +233,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		// 从aspectJAnnotation获取切入点的表达式
 		ajexp.setExpression(aspectJAnnotation.getPointcutExpression());
 		if (this.beanFactory != null) {
-			// 因为实现了BeanFactoryAware，所以这里要提
+			// 因为实现了BeanFactoryAware，所以这里要提供
 			ajexp.setBeanFactory(this.beanFactory);
 		}
 		return ajexp;
@@ -318,6 +320,10 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 	}
 
 
+	/**
+	 * 实例化切面的合成的advisor。由非单方面的按段切入点触发。
+	 * 该advice无效。
+	 */
 	/**
 	 * Synthetic advisor that instantiates the aspect.
 	 * Triggered by per-clause pointcut on non-singleton aspect.

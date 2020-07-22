@@ -51,6 +51,29 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * org.springframework.beans.factory.config.BeanPostProcessor实现，
+ * 该实现使用AOP代理包装每个合格的bean，并在调用bean本身之前委派给指定的拦截器。
+ *
+ * 此类区分“common”拦截器（由它创建的所有代理共享）和“specific”拦截器：每个bean实例唯一。
+ * 不需要任何通用的拦截器。如果存在，则使用interceptorNames属性设置它们。
+ * 与org.springframework.aop.framework.ProxyFactoryBean一样，
+ * 使用当前工厂中的拦截器名称（而不是bean引用）来正确处理原型advisors和拦截器：例如，支持状态混合。
+ * "interceptorNames"实体支持任何advice类型。
+ *
+ * 如果有大量需要使用相似代理（即委派给相同拦截器）的bean进行包装，则这种自动代理特别有用。
+ * 您可以向bean工厂注册一个这样的后处理器，而不是为x个目标bean进行x个重复的代理定义，以达到相同的效果。
+ *
+ * 子类可以应用任何策略来决定是否要代理Bean，例如按类型，名称，定义详细信息等。
+ * 它们还可以返回应仅应用于特定bean实例的其他拦截器。
+ * 一个简单的具体实现是BeanNameAutoProxyCreator，它通过给定名称标识要代理的bean。
+ *
+ * 可以使用任意数量的TargetSourceCreator实现来创建自定义目标源：例如，合并原型对象。
+ * 只要没有advice，只要TargetSourceCreator指定自定义TargetSource，就会自动进行代理。
+ * 如果没有设置TargetSourceCreators或没有匹配项，则默认情况下将使用SingletonTargetSource包装目标bean实例。
+ */
+// 增强功能，是通过拦截器完成的
+
+/**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
  * that wraps each eligible bean with an AOP proxy, delegating to specified interceptors
  * before invoking the bean itself.
@@ -138,6 +161,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
+	// K=cacheKey
+	// V=是否被advice
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
 
@@ -264,17 +289,19 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// 如果我们有自定义的TargetSource，请在此处创建代理。抑制目标Bean的不必要的默认实例化：TargetSource将以自定义方式处理目标实例。
 
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
-		// 业务代码一般不用这个
+
 		if (targetSource != null) {
 			if (StringUtils.hasLength(beanName)) {
 				this.targetSourcedBeans.add(beanName);
 			}
+			// 获取适用于当前bean Class的Advisors
 			Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
 			Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
 
+		// 业务代码一般不用这个，所以返回null
 		return null;
 	}
 
@@ -361,9 +388,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		}
 
 		// Create proxy if we have advice.  （如果我们有advice，创建代理）
-		// FIXME：看到这里
+		// 获取适用于当前bean Class的Advisors
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
+			// 如果被advice了，记录为true
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
@@ -465,24 +493,32 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			@Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory) {
+			// 给Bean的BeanDefinition设置一个targetClass
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
 
 		ProxyFactory proxyFactory = new ProxyFactory();
+		// 从当前类中复制一些配置到ProxyFactory中
 		proxyFactory.copyFrom(this);
 
 		if (!proxyFactory.isProxyTargetClass()) {
 			if (shouldProxyTargetClass(beanClass, beanName)) {
+				// 代理目标类
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
+				// 评估需要代理的接口
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
 
+		// 将拦截器构建成Advisor
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
+		// 设置Advisor
 		proxyFactory.addAdvisors(advisors);
+		// 设置目标源
 		proxyFactory.setTargetSource(targetSource);
+		// 配置ProxyFactory
 		customizeProxyFactory(proxyFactory);
 
 		proxyFactory.setFrozen(this.freezeProxy);
@@ -598,6 +634,15 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 
+	/**
+	 * 返回是否要代理给定的bean，要应用哪些其他advices（例如AOP联盟拦截器）和advisors
+	 *
+	 * @param beanClass 要通知的bean类
+	 * @param beanName bean的名称
+	 * @param customTargetSource getCustomTargetSource方法返回的TargetSource：可以忽略。如果未使用任何自定义目标源，则为null。
+	 * @return 特定bean的一组附加拦截器；如果没有其他拦截器，而只有普通拦截器，则为空数组；或者如果根本没有代理，甚至没有公共拦截器，则返回null。请参见常量DO_NOT_PROXY和PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS。
+	 * @throws BeansException
+	 */
 	/**
 	 * Return whether the given bean is to be proxied, what additional
 	 * advices (e.g. AOP Alliance interceptors) and advisors to apply.

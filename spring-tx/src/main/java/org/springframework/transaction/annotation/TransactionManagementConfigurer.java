@@ -19,6 +19,18 @@ package org.springframework.transaction.annotation;
 import org.springframework.transaction.TransactionManager;
 
 /**
+ * 与@EnableTransactionManagement一起注解的@Configuration类要实现的接口，
+ * 该类希望（或需要）显式指定用于注释驱动的事务管理的默认PlatformTransactionManager bean（或ReactiveTransactionManager bean），
+ * 而不是by的默认方法。类型的查询。可能有必要的一个原因是，如果容器中存在两个PlatformTransactionManager bean。
+ *
+ * 有关一般示例和上下文，请参见@EnableTransactionManagement。有关详细说明，请参见注解DrivenTransactionManager()。
+ *
+ * 请注意，在按类型查找消除歧义的情况下，
+ * 实现此接口的另一种方法是简单地将有问题的PlatformTransactionManager @Bean方法之一标记为@Primary。
+ * 这甚至通常是首选，因为它不会导致PlatformTransactionManager bean的早期初始化。
+ */
+
+/**
  * Interface to be implemented by @{@link org.springframework.context.annotation.Configuration
  * Configuration} classes annotated with @{@link EnableTransactionManagement} that wish to
  * (or need to) explicitly specify the default {@code PlatformTransactionManager} bean
@@ -46,6 +58,32 @@ import org.springframework.transaction.TransactionManager;
  */
 public interface TransactionManagementConfigurer {
 
+	/**
+	 * 返回默认的事务管理器bean，用于注解驱动的数据库事务管理，即在处理@Transactional方法时。有两种基本方法可以实现此方法：
+	 *
+	 * 1. 实现该方法并使用@Bean对其进行注解
+	 * 在这种情况下，实现@Configuration类将实现此方法，并使用@Bean对其进行标记，并直接在方法体内配置并返回事务管理器：
+	 *       @Bean
+	 *       @Override
+	 *       public PlatformTransactionManager annotationDrivenTransactionManager() {
+	 * 	       return new DataSourceTransactionManager(dataSource());
+	 *       }
+	 * 2. 在没有@Bean的情况下实现该方法并委托给另一个现有的@Bean方法
+	 *       @Bean
+	 *       public PlatformTransactionManager txManager() {
+	 * 	       return new DataSourceTransactionManager(dataSource());
+	 *       }
+	 *
+	 *       @Override
+	 *       public PlatformTransactionManager annotationDrivenTransactionManager() {
+	 * 	       return txManager(); // 引用上面的现有@Bean方法
+	 *       }
+	 *
+	 * 如果采用方法2，请确保只有一种方法标有@Bean！
+	 * 在＃1或＃2场景中，将PlatformTransactionManager实例作为容器中的Spring bean管理非常重要，
+	 * 因为所有PlatformTransactionManager实现都利用Spring生命周期回调（例如InitializingBean和BeanFactoryAware）。
+	 */
+	// 由用户实现
 	/**
 	 * Return the default transaction manager bean to use for annotation-driven database
 	 * transaction management, i.e. when processing {@code @Transactional} methods.

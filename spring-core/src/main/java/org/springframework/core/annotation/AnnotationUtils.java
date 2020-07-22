@@ -153,6 +153,14 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * 确定给定的类是否适合携带指定的注释（在类型，方法或字段级别）。
+	 *
+	 * @param clazz 要内省的class
+	 * @param annotationName 可搜索注解类型的全限定名称
+	 * @return 如果已知该类在任何级别都没有此类注解，则返回false；否则为真。
+	 * 		   如果在此处返回true，则调用方通常将执行完整的方法/字段自省。
+	 */
+	/**
 	 * Determine whether the given class is a candidate for carrying the specified annotation
 	 * (at type, method or field level).
 	 * @param clazz the class to introspect

@@ -91,6 +91,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = this.aspectBeanNames;
 
+		/**
+		 * 第一次执行的时候为null，处理完了以后缓存起来
+		 */
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
@@ -100,31 +103,37 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 					for (String beanName : beanNames) {
-						if (!isEligibleBean(beanName)) {
+						if (!isEligibleBean(beanName)) {  // 默认返回true，不会进这个if
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						// 我们必须小心，不要急于实例化bean，因为在这种情况下，它们将由Spring容器缓存，但不会被编织。
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
-						if (this.advisorFactory.isAspect(beanType)) {  /** 有@Aspect注解 */
+						if (this.advisorFactory.isAspect(beanType)) {  /** 这个bean class有@Aspect注解 */
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+								// 创建一个用于生产AspectInstance的工厂
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								// 从创建Advisor的工厂，获取Advisor
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									// 如果是单例bean，则将List<Advisor>放入缓存
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
+									// 否则将生产AspectInstance的工厂放入缓存
 									this.aspectFactoryCache.put(beanName, factory);
 								}
 								advisors.addAll(classAdvisors);
 							}
 							else {
+								// todo：targe和this的语法，以后研究
 								// Per target or per this.
 								if (this.beanFactory.isSingleton(beanName)) {
 									throw new IllegalArgumentException("Bean with name '" + beanName +
@@ -146,6 +155,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// 如果已经执行过buildAspectJAdvisors，则先通过aspectName从缓存里获取List<Advisor>，获取不到则从factory里get。
 		List<Advisor> advisors = new ArrayList<>();
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);

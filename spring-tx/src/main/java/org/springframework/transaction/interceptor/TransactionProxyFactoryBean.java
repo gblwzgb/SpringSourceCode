@@ -111,6 +111,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @see TransactionInterceptor
  * @see org.springframework.aop.framework.ProxyFactoryBean
  */
+// 过时了
 @SuppressWarnings("serial")
 public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
 		implements BeanFactoryAware {

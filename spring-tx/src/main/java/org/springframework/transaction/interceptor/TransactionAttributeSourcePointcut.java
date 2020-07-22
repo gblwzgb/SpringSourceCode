@@ -27,6 +27,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 实现一个Pointcut的内部类，
+ * 如果基础TransactionAttributeSource具有给定方法的属性，则该Pointcut匹配。
+ */
+
+/**
  * Inner class that implements a Pointcut that matches if the underlying
  * {@link TransactionAttributeSource} has an attribute for a given method.
  *
@@ -44,6 +49,7 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// 匹配到@Transactional注解
 		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
 	}
 
@@ -86,12 +92,15 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
 		@Override
 		public boolean matches(Class<?> clazz) {
+			// 如果class实现了这几个接口之一，则不值得被代理。
 			if (TransactionalProxy.class.isAssignableFrom(clazz) ||
 					PlatformTransactionManager.class.isAssignableFrom(clazz) ||
 					PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
 				return false;
 			}
+			// 是一个AnnotationTransactionAttributeSource，在ProxyTransactionManagementConfiguration中创建
 			TransactionAttributeSource tas = getTransactionAttributeSource();
+			/** 这个提前过滤一下Class，对后面的方法级的匹配有好处？（第一次没看仔细，还以为是有@Transactional就算候选的。。） */
 			return (tas == null || tas.isCandidateClass(clazz));
 		}
 	}

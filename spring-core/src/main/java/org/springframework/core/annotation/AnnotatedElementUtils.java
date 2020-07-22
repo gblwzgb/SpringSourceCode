@@ -532,6 +532,21 @@ public abstract class AnnotatedElementUtils {
 	}
 
 	/**
+	 * 在提供的元素上方的注释层次结构中找到指定注释类型的第一个注释，并将该注释的属性与注释层次结构较低级别中的注释的匹配属性合并。
+	 *
+	 * 注释层次结构中较低级别的属性将覆盖较高级别中的同名属性，并且在单个注释内和注释层次结构中都完全支持@AliasFor语义。
+	 *
+	 * 与getAllAnnotationAttributes相比，一旦找到了指定注释类型的第一个注释，此方法使用的搜索算法将停止搜索注释层次结构。
+	 *
+	 * 因此，指定的notificationType的其他注释将被忽略。此方法遵循类级javadoc中描述的find语义。
+	 *
+	 * @param element 带注解的元素（方法或字段？）
+	 * @param annotationType 要找的注解类型
+	 * @param classValuesAsString 是将Class引用转换为String还是将其保留为Class引用
+	 * @param nestedAnnotationsAsMap 是将嵌套的Annotation实例转换为AnnotationAttributes映射还是将其保留为Annotation实例
+	 * @return 合并的AnnotationAttributes，如果找不到，则为null
+	 */
+	/**
 	 * Find the first annotation of the specified {@code annotationType} within
 	 * the annotation hierarchy <em>above</em> the supplied {@code element} and
 	 * merge that annotation's attributes with <em>matching</em> attributes from

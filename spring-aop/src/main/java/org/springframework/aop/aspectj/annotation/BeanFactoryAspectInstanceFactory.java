@@ -27,6 +27,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
+ * 由Spring BeanFactory支持的org.springframework.aop.aspectj.AspectInstanceFactory实现。
+ *
+ * 请注意，如果使用原型，则可能会多次实例化，这可能不会给出您期望的语义。
+ * 使用LazySingletonAspectInstanceFactoryDe​​corator对此进行包装，以确保仅返回一个新aspect。
+ */
+// 后面的Factory，表示是个工厂类。前面的BeanFactory表示，是通过BeanFactory来生成AspectInstance（其实就是一个bean）
+
+/**
  * {@link org.springframework.aop.aspectj.AspectInstanceFactory} implementation
  * backed by a Spring {@link org.springframework.beans.factory.BeanFactory}.
  *
