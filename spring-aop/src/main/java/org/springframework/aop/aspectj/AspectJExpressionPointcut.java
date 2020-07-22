@@ -64,6 +64,14 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 使用AspectJ编织器来解析切入点表达式的Spring org.springframework.aop.Pointcut实现类。
+ *
+ * 切入点表达式的value是AspectJ表达式。这可以引用其他切入点，并使用组合和其他操作。
+ *
+ * 自然，由于这将由Spring AOP的基于代理的模型处理，因此仅支持方法执行切入点。
+ */
+
+/**
  * Spring {@link org.springframework.aop.Pointcut} implementation
  * that uses the AspectJ weaver to evaluate a pointcut expression.
  *

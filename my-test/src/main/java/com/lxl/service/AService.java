@@ -10,4 +10,8 @@ public class AService {
 	@Resource
 	private BService bService;
 
+	public void say(){
+		System.out.println("我是AService");
+	}
+
 }

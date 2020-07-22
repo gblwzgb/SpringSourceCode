@@ -17,6 +17,14 @@
 package org.springframework.aop;
 
 /**
+ * 限制切入点或简介与给定目标类集匹配的过滤器。
+ *
+ * 可以用作切入点的一部分，也可以用作IntroductionAdvisor的整个目标。
+ *
+ * 此接口的具体实现通常应提供Object.equals(Object)和Object.hashCode()的正确实现，以允许在缓存方案中使用该过滤器，例如在CGLIB生成的代理中。
+ */
+
+/**
  * Filter that restricts matching of a pointcut or introduction to
  * a given set of target classes.
  *

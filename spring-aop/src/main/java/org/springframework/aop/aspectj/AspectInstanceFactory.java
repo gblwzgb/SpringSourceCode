@@ -20,6 +20,13 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 
 /**
+ * 实现以提供AspectJ切面的实例的接口。从Spring的bean工厂解耦。
+ *
+ * 扩展Ordered接口以表达链中底层切面的排序值。
+ */
+// 创建切面对象的工厂
+
+/**
  * Interface implemented to provide an instance of an AspectJ aspect.
  * Decouples from Spring's bean factory.
  *

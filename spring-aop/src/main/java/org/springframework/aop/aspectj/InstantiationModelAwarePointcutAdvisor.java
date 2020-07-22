@@ -19,6 +19,11 @@ package org.springframework.aop.aspectj;
 import org.springframework.aop.PointcutAdvisor;
 
 /**
+ * 由Spring AOP Advisors实现的接口，其中包装了可能具有惰性初始化策略的AspectJ切面。
+ * 例如，perThis实例化模型将意味着advice的延迟初始化。
+ */
+
+/**
  * Interface to be implemented by Spring AOP Advisors wrapping AspectJ
  * aspects that may have a lazy initialization strategy. For example,
  * a perThis instantiation model would mean lazy initialization of the advice.
@@ -30,10 +35,16 @@ import org.springframework.aop.PointcutAdvisor;
 public interface InstantiationModelAwarePointcutAdvisor extends PointcutAdvisor {
 
 	/**
+	 * 返回此advisor是否正在延迟初始化其底层advice。
+	 */
+	/**
 	 * Return whether this advisor is lazily initializing its underlying advice.
 	 */
 	boolean isLazy();
 
+	/**
+	 * 返回此advisor是否已实例化其advice。
+	 */
 	/**
 	 * Return whether this advisor has already instantiated its advice.
 	 */

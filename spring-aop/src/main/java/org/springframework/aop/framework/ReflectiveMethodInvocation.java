@@ -31,6 +31,20 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.lang.Nullable;
 
 /**
+ * Spring的AOP Alliance MethodInvocation接口的实现，实现了扩展的ProxyMethodInvocation接口。
+ *
+ * 使用反射调用目标对象。子类可以重写invokeJoinpoint()方法来更改此行为，
+ * 因此对于更专门的MethodInvocation实现，这也是有用的基类。
+ *
+ * 可以克隆调用，并使用invocableClone()方法重复（每个克隆一次）调用proce()。
+ * 也可以使用setUserAttribute / getUserAttribute方法将自定义属性附加到调用。
+ *
+ * 注意：此类被认为是内部的，不应直接访问。
+ * 它公开的唯一原因是与现有框架集成（例如Pitchfork）的兼容性。
+ * 出于任何其他目的，请改用ProxyMethodInvocation接口。
+ */
+
+/**
  * Spring's implementation of the AOP Alliance
  * {@link org.aopalliance.intercept.MethodInvocation} interface,
  * implementing the extended

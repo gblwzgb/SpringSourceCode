@@ -19,6 +19,17 @@ package org.aopalliance.intercept;
 import java.lang.reflect.AccessibleObject;
 
 /**
+ * 该接口表示通用的运行时连接点（在AOP术语中）。
+ *
+ * 运行时连接点是在静态连接点（即程序中的位置）上发生的事件。
+ * 例如，调用是方法上的运行时连接点（静态连接点）。可
+ * 以使用getStaticPart（）方法来一般检索给定连接点的静态部分。
+ *
+ * 那么在拦截框架的上下文中，运行时连接点就是对可访问对象（方法，构造函数，字段）（即连接点的静态部分）的访问的验证。
+ * 它被传递到安装在静态连接点上的拦截器。
+ */
+
+/**
  * This interface represents a generic runtime joinpoint (in the AOP
  * terminology).
  *

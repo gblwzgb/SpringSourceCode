@@ -19,6 +19,12 @@ package org.aopalliance.intercept;
 import java.lang.reflect.Method;
 
 /**
+ * 方法调用的描述，在方法调用时提供给拦截器。
+ *
+ * 方法调用是一个连接点，可以被方法拦截器拦截。
+ */
+
+/**
  * Description of an invocation to a method, given to an interceptor
  * upon method-call.
  *

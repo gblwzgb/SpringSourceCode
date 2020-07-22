@@ -31,6 +31,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 用于从BeanFactory检索@AspectJ Bean并基于它们构建Spring Advisor的工具类，以与自动代理一起使用。
+ */
+// 类名前面的BeanFactory指的是：从BeanFactory中获取AspectJAdvisors
+/**
  * Helper for retrieving @AspectJ beans from a BeanFactory and building
  * Spring Advisors based on them, for use with auto-proxying.
  *
@@ -74,6 +78,10 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
 
 	/**
+	 * 在当前的bean工厂中查找带有AspectJ注释的aspect bean，然后返回代表它们的Spring AOP Advisor列表。
+	 * 为每个AspectJ advice方法创建一个Spring Advisor。
+	 */
+	/**
 	 * Look for AspectJ-annotated aspect beans in the current bean factory,
 	 * and return to a list of Spring AOP Advisors representing them.
 	 * <p>Creates a Spring Advisor for each AspectJ advice method.
@@ -101,7 +109,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						if (beanType == null) {
 							continue;
 						}
-						if (this.advisorFactory.isAspect(beanType)) {
+						if (this.advisorFactory.isAspect(beanType)) {  /** 有@Aspect注解 */
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {

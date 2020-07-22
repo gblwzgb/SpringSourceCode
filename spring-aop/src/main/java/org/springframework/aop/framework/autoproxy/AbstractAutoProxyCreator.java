@@ -522,6 +522,13 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * 确定给定bean的advisors，包括适用于Advisor接口的特定拦截器以及公共拦截器。
+	 *
+	 * @param beanName the name of the bean
+	 * @param specificInterceptors 特定于此bean的一组拦截器（可以为空，但不能为null）
+	 * @return 给定bean的Advisors列表
+	 */
+	/**
 	 * Determine the advisors for the given bean, including the specific interceptors
 	 * as well as the common interceptor, all adapted to the Advisor interface.
 	 * @param beanName the name of the bean
@@ -530,7 +537,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return the list of Advisors for the given bean
 	 */
 	protected Advisor[] buildAdvisors(@Nullable String beanName, @Nullable Object[] specificInterceptors) {
-		// Handle prototypes correctly...
+		// Handle prototypes correctly...  (正确处理原型...)
 		Advisor[] commonInterceptors = resolveInterceptorNames();
 
 		List<Object> allInterceptors = new ArrayList<>();
@@ -538,9 +545,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			allInterceptors.addAll(Arrays.asList(specificInterceptors));
 			if (commonInterceptors.length > 0) {
 				if (this.applyCommonInterceptorsFirst) {
+					// 如果要第一个调用公共拦截器，则插到列表第一个位置
 					allInterceptors.addAll(0, Arrays.asList(commonInterceptors));
 				}
 				else {
+					// 否则直接添加到队列末尾
 					allInterceptors.addAll(Arrays.asList(commonInterceptors));
 				}
 			}

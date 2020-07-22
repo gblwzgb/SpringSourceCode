@@ -28,6 +28,16 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * AspectJAwareAdvisorAutoProxyCreator的子类，用于处理当前应用程序上下文中的所有AspectJ注解切面以及Spring Advisor。
+ *
+ * 如果Spring AOP的基于代理的模型能够应用任何AspectJ注释的类，那么它们的advice将被自动识别。这涵盖了方法执行连接点。
+ *
+ * 如果使用<aop:include>元素，则只有名称与包含模式匹配的@AspectJ bean将被视为定义要用于Spring自动代理的方面。
+ *
+ * Spring Advisor的处理遵循org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator中建立的规则。
+ */
+
+/**
  * {@link AspectJAwareAdvisorAutoProxyCreator} subclass that processes all AspectJ
  * annotation aspects in the current application context, as well as Spring Advisors.
  *
@@ -120,6 +130,11 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 				(this.aspectJAdvisorFactory != null && this.aspectJAdvisorFactory.isAspect(beanClass)));
 	}
 
+	/**
+	 * 检查给定的切面bean是否符合自动代理的条件。
+	 * 如果未使用任何<aop:include>元素，则"includePatterns"将为null，并且包括所有bean。
+	 * 如果"includePatterns"非空，则模式之一必须匹配。
+	 */
 	/**
 	 * Check whether the given aspect bean is eligible for auto-proxying.
 	 * <p>If no &lt;aop:include&gt; elements were used then "includePatterns" will be

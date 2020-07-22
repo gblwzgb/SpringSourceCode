@@ -20,6 +20,14 @@ import org.springframework.aop.aspectj.AspectInstanceFactory;
 import org.springframework.lang.Nullable;
 
 /**
+ * AspectInstanceFactory的子接口，返回与AspectJ注释的类关联的AspectMetadata。
+ *
+ * 理想情况下，AspectInstanceFactory本身将包含此方法，
+ * 但是由于AspectMetadata使用仅Java-5的org.aspectj.lang.reflect.AjType，
+ * 因此我们需要拆分此子接口。
+ */
+
+/**
  * Subinterface of {@link org.springframework.aop.aspectj.AspectInstanceFactory}
  * that returns {@link AspectMetadata} associated with AspectJ-annotated classes.
  *

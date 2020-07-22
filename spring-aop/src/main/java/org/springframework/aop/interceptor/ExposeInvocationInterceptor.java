@@ -27,6 +27,17 @@ import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.PriorityOrdered;
 
 /**
+ * 将当前的MethodInvocation公开为thread-local对象的拦截器。
+ * 我们有时需要这样做；例如，当切入点（例如AspectJ表达式切入点）需要了解完整的调用上下文时。
+ *
+ * 除非确实必要，否则不要使用此拦截器。
+ * 目标对象通常不应该了解Spring AOP，因为这会导致对Spring API的依赖。
+ * 目标对象应尽可能是普通POJO。
+ *
+ * 如果使用，此拦截器通常将是拦截器链中的第一个。
+ */
+
+/**
  * Interceptor that exposes the current {@link org.aopalliance.intercept.MethodInvocation}
  * as a thread-local object. We occasionally need to do this; for example, when a pointcut
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.
@@ -46,6 +57,9 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Pri
 	/** Singleton instance of this class. */
 	public static final ExposeInvocationInterceptor INSTANCE = new ExposeInvocationInterceptor();
 
+	/**
+	 * 此类的单例advisor。在使用Spring AOP时优先使用INSTANCE，因为它避免了创建新Advisor来包装实例的需要。
+	 */
 	/**
 	 * Singleton advisor for this class. Use in preference to INSTANCE when using
 	 * Spring AOP, as it prevents the need to create a new Advisor to wrap the instance.

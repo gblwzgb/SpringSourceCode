@@ -56,6 +56,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
+
+// CGLIB的用法参考：https://www.cnblogs.com/xrq730/p/6661692.html
 /**
  * CGLIB-based {@link AopProxy} implementation for the Spring AOP framework.
  *
@@ -162,6 +164,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		}
 
 		try {
+			// 要代理的目标Class
 			Class<?> rootClass = this.advised.getTargetClass();
 			Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
 
@@ -178,24 +181,32 @@ class CglibAopProxy implements AopProxy, Serializable {
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
 			// Configure CGLIB Enhancer...
+			// 创建工具类
 			Enhancer enhancer = createEnhancer();
 			if (classLoader != null) {
+				// 设置类加载器
 				enhancer.setClassLoader(classLoader);
 				if (classLoader instanceof SmartClassLoader &&
 						((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) {
 					enhancer.setUseCache(false);
 				}
 			}
+			// 设置代理对象的父类
 			enhancer.setSuperclass(proxySuperClass);
+			// 设置代理对象要实现的接口
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 
+			/**
+			 * 设置拦截器，调用真实方法的时候，就进这些拦截器。类似InvocationHandler
+			 */
 			Callback[] callbacks = getCallbacks(rootClass);
 			Class<?>[] types = new Class<?>[callbacks.length];
 			for (int x = 0; x < types.length; x++) {
 				types[x] = callbacks[x].getClass();
 			}
+			// 设置callback的过滤器，即某些条件不走代理
 			// fixedInterceptorMap only populated at this point, after getCallbacks call above
 			enhancer.setCallbackFilter(new ProxyCallbackFilter(
 					this.advised.getConfigurationOnlyCopy(), this.fixedInterceptorMap, this.fixedInterceptorOffset));
@@ -645,6 +656,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 
 
 	/**
+	 * 通用AOP回调。当目标是动态的或代理未冻结时使用。
+	 */
+	/**
 	 * General purpose AOP callback. Used when the target is dynamic or when the
 	 * proxy is not frozen.
 	 */
@@ -670,12 +684,14 @@ class CglibAopProxy implements AopProxy, Serializable {
 					setProxyContext = true;
 				}
 				// Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
+				// 如果目标来自pool，则要尽可能晚些以最小化我们"拥有"目标的时间。
 				target = targetSource.getTarget();
 				Class<?> targetClass = (target != null ? target.getClass() : null);
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
 				// no real advice, but just reflective invocation of the target.
+				// 检查我们是否只有一个InvokerInterceptor：也就是说，没有真正的advice，而只是对目标的反射调用。
 				if (chain.isEmpty() && Modifier.isPublic(method.getModifiers())) {
 					// We can skip creating a MethodInvocation: just invoke the target directly.
 					// Note that the final invoker must be an InvokerInterceptor, so we know
@@ -759,6 +775,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 			}
 		}
 
+		/**
+		 * 与调用公共方法时使用反射来调用目标相比，与使用反射来调用目标相比，性能得到了一定的改善。
+		 */
 		/**
 		 * Gives a marginal performance improvement versus using reflection to
 		 * invoke the target when invoking public methods.

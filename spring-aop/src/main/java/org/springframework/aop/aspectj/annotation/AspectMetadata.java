@@ -32,6 +32,12 @@ import org.springframework.aop.framework.AopConfigException;
 import org.springframework.aop.support.ComposablePointcut;
 
 /**
+ * AspectJ方面类的元数据，以及针对per子句的附加Spring AOP切入点。
+ *
+ * 使用AspectJ 5 AJType反射API，使我们能够使用不同的AspectJ实例化模型，例如"singleton"，"pertarget"和"perthis"。
+ */
+
+/**
  * Metadata for an AspectJ aspect class, with an additional Spring AOP pointcut
  * for the per clause.
  *

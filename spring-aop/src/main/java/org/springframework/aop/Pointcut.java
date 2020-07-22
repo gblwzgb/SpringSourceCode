@@ -17,6 +17,11 @@
 package org.springframework.aop;
 
 /**
+ * 核心Spring切入点抽象。切入点由ClassFilter和MethodMatcher组成。
+ * 这些基本术语和Pointcut本身都可以组合起来以建立组合（例如，通过org.springframework.aop.support.ComposablePointcut）。
+ */
+
+/**
  * Core Spring pointcut abstraction.
  *
  * <p>A pointcut is composed of a {@link ClassFilter} and a {@link MethodMatcher}.
