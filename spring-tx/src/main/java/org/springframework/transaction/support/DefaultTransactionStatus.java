@@ -66,6 +66,16 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 
 	/**
+	 * 创建一个新的DefaultTransactionStatus实例。
+	 *
+	 * @param transaction 可以为内部事务实现保留状态的底层事务对象
+	 * @param newTransaction 如果事务是新的，否则参与现有事务
+	 * @param newSynchronization 如果已为给定事务打开新事务同步
+	 * @param readOnly 事务是否标记为只读
+	 * @param debug 应该启用调试日志记录来处理此事务吗？在此处缓存它可以防止重复调用以询问日志记录系统是否应启用调试日志记录。
+	 * @param suspendedResources 此事务已挂起的资源的持有者（如果有）
+	 */
+	/**
 	 * Create a new {@code DefaultTransactionStatus} instance.
 	 * @param transaction underlying transaction object that can hold state
 	 * for the internal transaction implementation
@@ -102,6 +112,9 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 		return this.transaction;
 	}
 
+	/**
+	 * 返回是否有实际的活动事务。
+	 */
 	/**
 	 * Return whether there is an actual transaction active.
 	 */

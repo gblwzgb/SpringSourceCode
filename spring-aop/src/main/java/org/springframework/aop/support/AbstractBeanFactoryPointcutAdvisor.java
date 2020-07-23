@@ -103,6 +103,7 @@ public abstract class AbstractBeanFactoryPointcutAdvisor extends AbstractPointcu
 
 	@Override
 	public Advice getAdvice() {
+		// 这个Advice是在org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration.transactionAdvisor中设置的，是一个TransactionInterceptor拦截器
 		Advice advice = this.advice;
 		if (advice != null) {
 			return advice;

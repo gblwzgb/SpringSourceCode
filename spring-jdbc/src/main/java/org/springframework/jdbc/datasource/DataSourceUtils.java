@@ -163,6 +163,14 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
+	 * 使用给定的事务语义来准备给定的Connection。
+	 *
+	 * @param con 要准备的Connection
+	 * @param definition 适用的事务定义
+	 * @return 先前的隔离级别（如果有）
+	 * @throws SQLException
+	 */
+	/**
 	 * Prepare the given Connection with the given transaction semantics.
 	 * @param con the Connection to prepare
 	 * @param definition the transaction definition to apply
@@ -184,6 +192,7 @@ public abstract class DataSourceUtils {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Setting JDBC Connection [" + con + "] read-only");
 				}
+				// 设置只读
 				con.setReadOnly(true);
 			}
 			catch (SQLException | RuntimeException ex) {
@@ -200,8 +209,9 @@ public abstract class DataSourceUtils {
 			}
 		}
 
-		// Apply specific isolation level, if any.
+		// Apply specific isolation level, if any.  （应用特定的隔离级别（如果有）。）
 		Integer previousIsolationLevel = null;
+		// 项目中一般不设置事务隔离级别
 		if (definition != null && definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Changing isolation level of JDBC Connection [" + con + "] to " +

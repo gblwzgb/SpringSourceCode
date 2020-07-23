@@ -235,8 +235,11 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	@Override
 	protected Object doGetTransaction() {
+		// 创建一个事务对象
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
+		// DataSourceTransactionManager允许嵌套事务
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// todo：
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
@@ -246,9 +249,13 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected boolean isExistingTransaction(Object transaction) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+		// 事务对象中有ConnectionHolder，且ConnectionHolder中的事务是活跃的
 		return (txObject.hasConnectionHolder() && txObject.getConnectionHolder().isTransactionActive());
 	}
 
+	/**
+	 * 此实现设置隔离级别，但忽略超时。
+	 */
 	/**
 	 * This implementation sets the isolation level but ignores the timeout.
 	 */
@@ -260,40 +267,53 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		try {
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
+				// 从DataSource中获取一个Connection，项目中一般是Druid连接池
 				Connection newCon = obtainDataSource().getConnection();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
 				}
+				// 创建一个ConnectionHolder并设置到事务对象中
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
 
+			// 和事务一起同步？
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
+			// 从事务对象中获取Connection
 			con = txObject.getConnectionHolder().getConnection();
 
+			// 给Connection设置一定的属性
 			Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
+			// 前一个事务的隔离级别
 			txObject.setPreviousIsolationLevel(previousIsolationLevel);
+			// 是否只读
 			txObject.setReadOnly(definition.isReadOnly());
 
 			// Switch to manual commit if necessary. This is very expensive in some JDBC drivers,
 			// so we don't want to do it unnecessarily (for example if we've explicitly
 			// configured the connection pool to set it already).
+			// 如有必要，请切换为手动提交。 在某些JDBC驱动程序中，这是非常昂贵的，
+			// 因此我们不需要不必要的操作（例如，如果我们已经明确配置了连接池以进行设置）。
 			if (con.getAutoCommit()) {
 				txObject.setMustRestoreAutoCommit(true);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Switching JDBC Connection [" + con + "] to manual commit");
 				}
+				// 关闭自动提交
 				con.setAutoCommit(false);
 			}
 
+			// 准备事务性的连接
 			prepareTransactionalConnection(con, definition);
+			// 设置事务为活跃
 			txObject.getConnectionHolder().setTransactionActive(true);
 
+			// 设置超时时间
 			int timeout = determineTimeout(definition);
 			if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
 				txObject.getConnectionHolder().setTimeoutInSeconds(timeout);
 			}
 
-			// Bind the connection holder to the thread.
+			// Bind the connection holder to the thread.  （将ConnectionHolder绑定到ThreadLocal上）
 			if (txObject.isNewConnectionHolder()) {
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
@@ -394,6 +414,17 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 
 	/**
+	 * 事务开始后立即准备事务连接。
+	 * 如果将"enforceReadOnly"标志设置为true，并且事务定义指示只读事务，则默认实现将执行"SET TRANSACTION READ ONLY"语句。
+	 * Oracle，MySQL和Postgres可以理解"SET TRANSACTION READ ON"（只读），并且可以与其他数据库一起使用。
+	 * 如果您想采用这种处理方法，请相应地重写此方法。
+	 *
+	 * @param con 事务性JDBC连接
+	 * @param definition 当前事务定义
+	 * @throws SQLException
+	 */
+	// 记得以前用DRDS会重写这个方法
+	/**
 	 * Prepare the transactional {@code Connection} right after transaction begin.
 	 * <p>The default implementation executes a "SET TRANSACTION READ ONLY" statement
 	 * if the {@link #setEnforceReadOnly "enforceReadOnly"} flag is set to {@code true}
@@ -418,6 +449,10 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	}
 
 
+	/**
+	 * DataSource事务对象，代表一个ConnectionHolder。
+	 * 由DataSourceTransactionManager用作事务对象。
+	 */
 	/**
 	 * DataSource transaction object, representing a ConnectionHolder.
 	 * Used as transaction object by DataSourceTransactionManager.

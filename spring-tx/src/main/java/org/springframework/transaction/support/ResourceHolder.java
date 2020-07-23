@@ -17,6 +17,11 @@
 package org.springframework.transaction.support;
 
 /**
+ * 由资源持有者实现的通用接口。
+ * 允许Spring的事务基础结构在必要时进行内部检查并重置持有者。
+ */
+
+/**
  * Generic interface to be implemented by resource holders.
  * Allows Spring's transaction infrastructure to introspect
  * and reset the holder when necessary.

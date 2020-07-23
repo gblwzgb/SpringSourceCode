@@ -22,6 +22,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.TransactionTimedOutException;
 
 /**
+ * 资源持有者的便捷基类。
+ *
+ * 对参与事务具有仅回滚支持。可以在一定秒数或毫秒后过期以确定事务超时。
+ */
+
+/**
  * Convenient base class for resource holders.
  *
  * <p>Features rollback-only support for participating transactions.
@@ -54,6 +60,9 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 		this.synchronizedWithTransaction = synchronizedWithTransaction;
 	}
 
+	/**
+	 * 返回资源是否与事务同步。
+	 */
 	/**
 	 * Return whether the resource is synchronized with a transaction.
 	 */

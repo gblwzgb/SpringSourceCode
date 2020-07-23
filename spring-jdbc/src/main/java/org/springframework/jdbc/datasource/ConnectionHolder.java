@@ -25,6 +25,15 @@ import org.springframework.transaction.support.ResourceHolderSupport;
 import org.springframework.util.Assert;
 
 /**
+ * 包装JDBC连接的资源持有者。
+ * 对于特定的javax.sql.DataSource，DataSourceTransactionManager将此类的实例绑定到线程。
+ *
+ * 从基类继承对嵌套JDBC事务和引用计数功能的仅回滚支持。
+ *
+ * 注意：这是SPI类，不适合应用程序使用。
+ */
+
+/**
  * Resource holder wrapping a JDBC {@link Connection}.
  * {@link DataSourceTransactionManager} binds instances of this class
  * to the thread, for a specific {@link javax.sql.DataSource}.

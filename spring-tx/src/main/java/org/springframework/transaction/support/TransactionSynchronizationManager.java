@@ -33,6 +33,26 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 核心委托，用于管理每个线程的资源和事务同步。由资源管理代码而非典型的应用程序代码使用。
+ *
+ * 每个key支持一个资源而不会被覆盖，也就是说，在为同一key设置新资源之前，需要先删除资源。
+ * 如果同步处于active状态，则支持事务同步列表。
+ *
+ * 资源管理代码应检查线程绑定资源，例如通过getResource进行JDBC连接或休眠会话。
+ * 此类代码通常不应将资源绑定到线程，因为这是事务管理器的责任。
+ * 另一个选择是，如果事务同步处于active状态，则在第一次使用时延迟绑定，以执行跨越任意数量资源的事务。
+ *
+ * 事务同步必须由事务管理器通过initSynchronization()和clearSynchronization()激活和停用。
+ * AbstractPlatformTransactionManager会自动支持此功能，
+ * 因此所有标准Spring事务管理器（例如org.springframework.transaction.jta.JtaTransactionManager和org.springframework.jdbc.datasource.DataSourceTransactionManager）都会自动支持此功能。
+ *
+ * 资源管理代码仅应在此管理器处于活动状态时注册同步，可以通过isSynchronizationActive检查该同步；它应该立即执行其他资源清理。
+ * 如果事务同步未处于活动状态，则说明当前没有事务，或者事务管理器不支持事务同步。
+ *
+ * 例如，同步用于在JTA事务中始终返回相同的资源，例如任意给定DataSource或SessionFactory的JDBC连接或Hibernate会话。
+ */
+
+/**
  * Central delegate that manages resources and transaction synchronizations per thread.
  * To be used by resource management code but not by typical application code.
  *
@@ -127,6 +147,12 @@ public abstract class TransactionSynchronizationManager {
 		return (value != null);
 	}
 
+	/**
+	 * 检索绑定到当前线程的给定key的resource。
+	 *
+	 * @param key 要检查的key（通常是resource工厂）
+	 * @return 绑定到当前线程（通常是活动资源对象）的值，如果没有则为null
+	 */
 	/**
 	 * Retrieve a resource for the given key that is bound to the current thread.
 	 * @param key the key to check (usually the resource factory)

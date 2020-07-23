@@ -21,6 +21,11 @@ import reactor.core.publisher.Mono;
 import org.springframework.lang.Nullable;
 
 /**
+ * 这是Spring的反应式事务基础架构的核心接口。
+ * 应用程序可以直接使用它，但它并不是主要用于API：通常，应用程序将与事务操作符或通过AOP进行声明式事务划分一起使用。
+ */
+
+/**
  * This is the central interface in Spring's reactive transaction infrastructure.
  * Applications can use this directly, but it is not primarily meant as API:
  * Typically, applications will work with either transactional operators or

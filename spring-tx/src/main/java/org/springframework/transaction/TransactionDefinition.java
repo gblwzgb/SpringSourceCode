@@ -108,6 +108,13 @@ public interface TransactionDefinition {
 	int PROPAGATION_REQUIRES_NEW = 3;
 
 	/**
+	 * 不支持当前事务；而是始终以非事务方式执行。类似于同名的EJB事务属性。
+	 * 注意：实际的事务挂起不能在所有事务管理器上立即使用。
+	 * 这尤其适用于org.springframework.transaction.jta.JtaTransactionManager，
+	 * 它要求javax.transaction.TransactionManager对其可用（在标准Java EE中是服务器特定的）。
+	 * 注意，事务同步在PROPAGATION_NOT_SUPPORTED范围内不可用。现有同步将被暂停并适当恢复。
+	 */
+	/**
 	 * Do not support a current transaction; rather always execute non-transactionally.
 	 * Analogous to the EJB transaction attribute of the same name.
 	 * <p><b>NOTE:</b> Actual transaction suspension will not work out-of-the-box
@@ -130,6 +137,12 @@ public interface TransactionDefinition {
 	 */
 	int PROPAGATION_NEVER = 5;
 
+	/**
+	 * 如果当前事务存在，则在嵌套事务中执行，否则，行为类似于PROPAGATION_REQUIRED。
+	 * EJB中没有类似功能。注意：嵌套事务的实际创建将仅在特定的事务管理器上起作用。
+	 * 开箱即用，仅适用于使用JDBC 3.0驱动程序时的JDBC org.springframework.jdbc.datasource.DataSourceTransactionManager。
+	 * 一些JTA提供程序可能也支持嵌套事务。
+	 */
 	/**
 	 * Execute within a nested transaction if a current transaction exists,
 	 * behave like {@link #PROPAGATION_REQUIRED} otherwise. There is no
