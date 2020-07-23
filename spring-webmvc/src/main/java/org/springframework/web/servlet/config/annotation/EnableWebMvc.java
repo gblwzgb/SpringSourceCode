@@ -25,6 +25,57 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
+ * 将此注释添加到@Configuration类可从WebMvcConfigurationSupport导入Spring MVC配置，例如：
+ *
+ *    @Configuration
+ *    @EnableWebMvc
+ *    @ComponentScan(basePackageClasses = MyConfiguration.class)
+ *    public class MyConfiguration {
+ *
+ *    }
+ *
+ * 要自定义导入的配置，请实现WebMvcConfigurer接口并覆盖各个方法，例如：
+ *
+ *    @Configuration
+ *    @EnableWebMvc
+ *    @ComponentScan(basePackageClasses = MyConfiguration.class)
+ *    public class MyConfiguration implements WebMvcConfigurer {
+ *
+ *           @Override
+ *           public void addFormatters(FormatterRegistry formatterRegistry) {
+ *            formatterRegistry.addConverter(new MyConverter());
+ *           }
+ *
+ *           @Override
+ *           public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+ *            converters.add(new MyHttpMessageConverter());
+ *           }
+ *
+ *    }
+ *
+ * 注意：只有一个@Configuration类可以具有@EnableWebMvc注解，以导入Spring Web MVC配置。
+ * 但是，可以有多个实现WebMvcConfigurer的@Configuration类，以自定义提供的配置。
+ * 如果WebMvcConfigurer没有公开一些需要配置的高级设置，
+ * 请考虑删除@EnableWebMvc注解并直接从WebMvcConfigurationSupport或DelegatingWebMvcConfiguration进行扩展，例如：
+ *
+	 @Configuration
+	 @ComponentScan(basePackageClasses = { MyConfiguration.class })
+	 public class MyConfiguration extends WebMvcConfigurationSupport {
+
+		 @Override
+		 public void addFormatters(FormatterRegistry formatterRegistry) {
+		 	formatterRegistry.addConverter(new MyConverter());
+		 }
+
+		 @Bean
+		 public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+		 	// Create or delegate to "super" to create and
+		 	// customize properties of RequestMappingHandlerAdapter
+		 }
+	 }
+ */
+
+/**
  * Adding this annotation to an {@code @Configuration} class imports the Spring MVC
  * configuration from {@link WebMvcConfigurationSupport}, e.g.:
  *

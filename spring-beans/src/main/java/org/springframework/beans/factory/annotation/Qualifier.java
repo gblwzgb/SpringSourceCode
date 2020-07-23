@@ -24,6 +24,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 自动装配时，此注解可以在字段或参数上用作候选bean的限定符。
+ * 它也可以用于注解其他自定义注解，这些注解随后可以用作限定符。
+ */
+
+/**
  * This annotation may be used on a field or parameter as a qualifier for
  * candidate beans when autowiring. It may also be used to annotate other
  * custom annotations that can then in turn be used as qualifiers.

@@ -31,6 +31,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
+ * AOP Alliance MethodInterceptor，用于使用常见的Spring事务基础结构（PlatformTransactionManager/org.springframework.transaction.ReactiveTransactionManager）进行声明式事务管理。
+ *
+ * 派生自TransactionAspectSupport类，该类包含与Spring的基础事务API的集成。
+ * TransactionInterceptor只是以正确的顺序调用相关的超类方法，例如invokeWithinTransaction。
+ *
+ * TransactionInterceptor是线程安全的。
+ */
+
+/**
  * AOP Alliance MethodInterceptor for declarative transaction
  * management using the common Spring transaction infrastructure
  * ({@link org.springframework.transaction.PlatformTransactionManager}/

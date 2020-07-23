@@ -271,6 +271,9 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 
 
 	/**
+	 * 返回以0排序的RequestMappingHandlerMapping，用于将请求映射到带注解的controllers。
+	 */
+	/**
 	 * Return a {@link RequestMappingHandlerMapping} ordered at 0 for mapping
 	 * requests to annotated controllers.
 	 */
@@ -443,6 +446,10 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	}
 
 	/**
+	 * 返回以1排序的处理程序映射，以将URL路径直接映射到视图名称。
+	 * 要配置视图控制器，请重写addViewControllers。
+	 */
+	/**
 	 * Return a handler mapping ordered at 1 to map URL paths directly to
 	 * view names. To configure view controllers, override
 	 * {@link #addViewControllers}.
@@ -475,6 +482,9 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	protected void addViewControllers(ViewControllerRegistry registry) {
 	}
 
+	/**
+	 * 返回以2排序的BeanNameUrlHandlerMapping，以将URL路径映射到控制器bean名称。
+	 */
 	/**
 	 * Return a {@link BeanNameUrlHandlerMapping} ordered at 2 to map URL
 	 * paths to controller bean names.

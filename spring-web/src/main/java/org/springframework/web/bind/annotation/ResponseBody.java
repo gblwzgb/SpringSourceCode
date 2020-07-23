@@ -23,6 +23,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 指示方法返回值的注解应绑定到Web response body。支持处理带该注解的方法。
+ *
+ * 从版本4.0开始，此注解也可以在类型级别上添加，在这种情况下，它是继承的，不需要在方法级别上添加。
+ */
+
+/**
  * Annotation that indicates a method return value should be bound to the web
  * response body. Supported for annotated handler methods.
  *

@@ -254,22 +254,30 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		// 是否有@Controller或者@RequestMapping注解
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
 	}
 
 	/**
+	 * 在指定的handler bean中查找handler方法。
+	 * @param handler Bean名称或实际handler实例
+	 */
+	/**
 	 * Look for handler methods in the specified handler bean.
 	 * @param handler either a bean name or an actual handler instance
 	 * @see #getMappingForMethod
 	 */
 	protected void detectHandlerMethods(Object handler) {
+		// 获取bean的Class
 		Class<?> handlerType = (handler instanceof String ?
 				obtainApplicationContext().getType((String) handler) : handler.getClass());
 
 		if (handlerType != null) {
+			// 返回原始类（代理过的类上缺东西？）
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// method和RequestMappingInfo的映射 todo:selectMethods方法
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -283,8 +291,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
+			//
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+				// 注册一下，todo：没细看
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -373,6 +383,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * 查找当前请求的最佳匹配handler方法。
+	 * 如果找到多个匹配项，则选择最佳匹配项。
+	 */
+	/**
 	 * Look up the best-matching handler method for the current request.
 	 * If multiple matches are found, the best match is selected.
 	 * @param lookupPath mapping lookup path within the current servlet mapping
@@ -395,6 +409,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (!matches.isEmpty()) {
 			Comparator<Match> comparator = new MatchComparator(getMappingComparator(request));
+			// 按优先级排序
 			matches.sort(comparator);
 			Match bestMatch = matches.get(0);
 			if (matches.size() > 1) {
@@ -405,6 +420,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 					return PREFLIGHT_AMBIGUOUS_MATCH;
 				}
 				Match secondBestMatch = matches.get(1);
+				// 如果第一名和第二名一样，报错
 				if (comparator.compare(bestMatch, secondBestMatch) == 0) {
 					Method m1 = bestMatch.handlerMethod.getMethod();
 					Method m2 = secondBestMatch.handlerMethod.getMethod();

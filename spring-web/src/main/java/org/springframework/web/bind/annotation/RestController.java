@@ -26,6 +26,16 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Controller;
 
 /**
+ * 一个方便，其本身由@Controller和@ResponseBody进行注解。
+ *
+ * 带有此注解的类型被视为控制器，其中@RequestMapping方法默认情况下采用@ResponseBody语义。
+ *
+ * 注意：如果配置了适当的HandlerMapping-HandlerAdapter对，
+ * 例如RequestMappingHandlerMapping-RequestMappingHandlerAdapter对，
+ * 则会处理@RestController，这是MVC Java配置和MVC namespace中的默认值。
+ */
+
+/**
  * A convenience annotation that is itself annotated with
  * {@link Controller @Controller} and {@link ResponseBody @ResponseBody}.
  * <p>

@@ -25,6 +25,13 @@ import java.lang.annotation.Target;
 import org.springframework.core.annotation.AliasFor;
 
 /**
+ * 表示带该注解的类是“控制器”（例如Web控制器）。
+ *
+ * 此注解用作@Component的特化，允许通过类路径扫描自动检测实现类。
+ * 它通常与基于org.springframework.web.bind.annotation.RequestMapping注解的带注解的处理程序方法结合使用。
+ */
+
+/**
  * Indicates that an annotated class is a "Controller" (e.g. a web controller).
  *
  * <p>This annotation serves as a specialization of {@link Component @Component},

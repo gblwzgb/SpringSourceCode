@@ -155,6 +155,11 @@ public class UrlPathHelper {
 
 
 	/**
+	 * 返回给定请求的映射查找路径，如果适用，则在当前Servlet映射中，否则在Web应用程序中返回。
+	 *
+	 * 如果在RequestDispatcher包含中调用，则检测包含请求URL。
+	 */
+	/**
 	 * Return the mapping lookup path for the given request, within the current
 	 * servlet mapping if applicable, else within the web application.
 	 * <p>Detects include request URL if called within a RequestDispatcher include.
@@ -168,7 +173,7 @@ public class UrlPathHelper {
 		if (this.alwaysUseFullPath) {
 			return getPathWithinApplication(request);
 		}
-		// Else, use path within current servlet mapping if applicable
+		// Else, use path within current servlet mapping if applicable  (否则，请在当前servlet映射中使用路径（如果适用）)
 		String rest = getPathWithinServletMapping(request);
 		if (!"".equals(rest)) {
 			return rest;
@@ -199,6 +204,17 @@ public class UrlPathHelper {
 	}
 
 	/**
+	 * 返回给定请求的servlet映射内的路径，即请求URL的超出servlet的部分；
+	 * 如果已使用整个URL标识servlet，则返回“”。
+	 * 如果在RequestDispatcher包含中调用，则检测包含请求URL。
+	 *
+	 * E.g.: servlet mapping = "/*"; request URI = "/test/a" -> "/test/a".
+	 * E.g.: servlet mapping = "/"; request URI = "/test/a" -> "/test/a".
+	 * E.g.: servlet mapping = "/test/*"; request URI = "/test/a" -> "/a".
+	 * E.g.: servlet mapping = "/test"; request URI = "/test" -> "".
+	 * E.g.: servlet mapping = "/*.test"; request URI = "/a.test" -> "".
+	 */
+	/**
 	 * Return the path within the servlet mapping for the given request,
 	 * i.e. the part of the request's URL beyond the part that called the servlet,
 	 * or "" if the whole URL has been used to identify the servlet.
@@ -214,11 +230,13 @@ public class UrlPathHelper {
 	 */
 	public String getPathWithinServletMapping(HttpServletRequest request) {
 		String pathWithinApp = getPathWithinApplication(request);
+		// 获取servlet路径
 		String servletPath = getServletPath(request);
+		// 将//都"消毒"成/
 		String sanitizedPathWithinApp = getSanitizedPath(pathWithinApp);
 		String path;
 
-		// If the app container sanitized the servletPath, check against the sanitized version
+		// If the app container sanitized the servletPath, check against the sanitized version  (如果应用容器对ServletPath进行了清理，请检查清理后的版本)
 		if (servletPath.contains(sanitizedPathWithinApp)) {
 			path = getRemainingPath(sanitizedPathWithinApp, servletPath, false);
 		}
@@ -254,6 +272,9 @@ public class UrlPathHelper {
 	}
 
 	/**
+	 * 返回Web应用程序中给定请求的路径。如果在RequestDispatcher包含中调用，则检测包含请求URL。
+	 */
+	/**
 	 * Return the path within the web application for the given request.
 	 * <p>Detects include request URL if called within a RequestDispatcher include.
 	 * @param request current HTTP request
@@ -261,7 +282,9 @@ public class UrlPathHelper {
 	 * @see #getLookupPathForRequest
 	 */
 	public String getPathWithinApplication(HttpServletRequest request) {
+		// 获取context路径
 		String contextPath = getContextPath(request);
+		// 获取URI
 		String requestUri = getRequestUri(request);
 		String path = getRemainingPath(requestUri, contextPath, true);
 		if (path != null) {
@@ -273,6 +296,10 @@ public class UrlPathHelper {
 		}
 	}
 
+	/**
+	 * 将给定的“映射”匹配到"requestUri"的开头，如果存在匹配，则返回多余的部分。
+	 * 之所以需要此方法，是因为与requestUri不同，HttpServletRequest返回的上下文路径和servlet路径已去除分号内容。
+	 */
 	/**
 	 * Match the given "mapping" to the start of the "requestUri" and if there
 	 * is a match return the extra part. This method is needed because the
@@ -377,6 +404,7 @@ public class UrlPathHelper {
 	 * @param request current HTTP request
 	 * @return the servlet path
 	 */
+	// 获取servlet路径
 	public String getServletPath(HttpServletRequest request) {
 		String servletPath = (String) request.getAttribute(WebUtils.INCLUDE_SERVLET_PATH_ATTRIBUTE);
 		if (servletPath == null) {

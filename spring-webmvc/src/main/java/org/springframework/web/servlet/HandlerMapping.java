@@ -21,6 +21,24 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 
 /**
+ * 由定义requests和handler对象之间的映射关系的对象实现的接口。
+ *
+ * 此类可以由应用程序开发人员实现，尽管不是必需的，因为该框架中包含BeanNameUrlHandlerMapping和RequestMappingHandlerMapping。
+ * 如果未在应用程序上下文中注册HandlerMapping bean，则前者是默认值。
+ *
+ * HandlerMapping实现可以支持映射的拦截器，但不是必须的。
+ * handler将始终包装在HandlerExecutionChain实例中，并可选地伴随一些HandlerInterceptor实例。
+ * DispatcherServlet将首先以给定的顺序调用每个HandlerInterceptor的preHandle方法，如果所有preHandle方法都返回true，则最终调用handler本身。
+ *
+ * 参数化此映射的功能是此MVC框架的强大而独特的功能。
+ * 例如，可以根据会话状态，cookie状态或许多其他变量编写自定义映射。
+ * 没有其他MVC框架似乎同样灵活。
+ *
+ * 注意：实现类可以实现org.springframework.core.Ordered接口，
+ * 以便能够指定排序顺序，从而指定DispatcherServlet应用的优先级。非Ordered实例被视为最低优先级。
+ */
+
+/**
  * Interface to be implemented by objects that define a mapping between
  * requests and handler objects.
  *
@@ -129,6 +147,17 @@ public interface HandlerMapping {
 	 */
 	String PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE = HandlerMapping.class.getName() + ".producibleMediaTypes";
 
+	/**
+	 * 返回此请求的handler和所有拦截器。可以根据请求URL，会话状态或实现类选择的任何因素进行选择。
+	 *
+	 * 返回的HandlerExecutionChain包含一个handler对象，甚至没有一个标签接口，因此不会以任何方式限制handler。
+	 * 例如，可以编写HandlerAdapter来允许使用另一个框架的handler对象。
+	 *
+	 * 如果未找到匹配项，则返回null。这不是错误。
+	 * DispatcherServlet将查询所有已注册的HandlerMapping Bean以查找匹配项，并且仅在没有人可以找到handler的情况下才确定存在错误。
+	 *
+	 * @return 包含handler对象和任何拦截器的HandlerExecutionChain实例；如果未找到映射，则返回null
+	 */
 	/**
 	 * Return a handler and any interceptors for this request. The choice may be made
 	 * on request URL, session state, or any factor the implementing class chooses.

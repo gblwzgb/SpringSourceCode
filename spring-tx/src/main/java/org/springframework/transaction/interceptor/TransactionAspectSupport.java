@@ -53,6 +53,23 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 /**
+ * 事务切面的基类，例如TransactionInterceptor或AspectJ切面。
+ *
+ * 这使得基础Spring事务基础结构可以轻松地用于为任何切面系统实现方面。
+ *
+ * 子类负责以正确的顺序调用此类中的方法。
+ *
+ * 如果没有在TransactionAttribute中指定任何事务名称，则公开的名称将是全限定类名+ "."+方法名称（默认情况下）。
+ *
+ * 使用策略设计模式。
+ * PlatformTransactionManager或ReactiveTransactionManager实现将执行实际的事务管理，
+ * 并且使用TransactionAttributeSource（例如基于注解）来确定特定类或方法的事务定义。
+ *
+ * 如果事务切面的PlatformTransactionManager和TransactionAttributeSource可序列化，则它是可序列化的。
+ */
+// 事务切面支持
+
+/**
  * Base class for transactional aspects, such as the {@link TransactionInterceptor}
  * or an AspectJ aspect.
  *
