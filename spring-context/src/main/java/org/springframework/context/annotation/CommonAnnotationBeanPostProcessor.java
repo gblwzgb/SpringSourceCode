@@ -329,8 +329,10 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		// 查询注入元数据
 		InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), pvs);
 		try {
+			// 注入
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (Throwable ex) {
@@ -553,11 +555,14 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			ConfigurableBeanFactory beanFactory = (ConfigurableBeanFactory) factory;
 			for (String autowiredBeanName : autowiredBeanNames) {
 				if (requestingBeanName != null && beanFactory.containsBean(autowiredBeanName)) {
+					// key，被注入的beanName（即requestingBeanName依赖的beanName）
+					// value，需要被注入的beanName（即正在populate属性的bean）
 					beanFactory.registerDependentBean(autowiredBeanName, requestingBeanName);
 				}
 			}
 		}
 
+		// 返回被注入的资源
 		return resource;
 	}
 
@@ -565,6 +570,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	/**
 	 * Class representing generic injection information about an annotated field
 	 * or setter method, supporting @Resource and related annotations.
+	 * （译：表示有关带注释的字段或设置方法的一般注入信息的类，支持@Resource和相关的注释。）
 	 */
 	protected abstract static class LookupElement extends InjectionMetadata.InjectedElement {
 
@@ -612,6 +618,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	/**
 	 * Class representing injection information about an annotated field
 	 * or setter method, supporting the @Resource annotation.
+	 * （译：表示有关带注解的字段或设置方法的注入信息的类，支持@Resource注解。）
 	 */
 	private class ResourceElement extends LookupElement {
 
@@ -622,8 +629,10 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			Resource resource = ae.getAnnotation(Resource.class);
 			String resourceName = resource.name();
 			Class<?> resourceType = resource.type();
+			// 没有指定@Resource中的name，则使用字段名
 			this.isDefaultName = !StringUtils.hasLength(resourceName);
 			if (this.isDefaultName) {
+				// 使用字段名
 				resourceName = this.member.getName();
 				if (this.member instanceof Method && resourceName.startsWith("set") && resourceName.length() > 3) {
 					resourceName = Introspector.decapitalize(resourceName.substring(3));

@@ -67,8 +67,10 @@ public class InjectionMetadata {
 
 	private static final Log logger = LogFactory.getLog(InjectionMetadata.class);
 
+	// 目标类
 	private final Class<?> targetClass;
 
+	// 目标类需要注入的元素
 	private final Collection<InjectedElement> injectedElements;
 
 	@Nullable
@@ -218,12 +220,14 @@ public class InjectionMetadata {
 		protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
 				throws Throwable {
 
+			// 是不是字段，是则直接set
 			if (this.isField) {
 				Field field = (Field) this.member;
 				ReflectionUtils.makeAccessible(field);
 				field.set(target, getResourceToInject(target, requestingBeanName));
 			}
 			else {
+				// 如果是方法，则反射调用
 				if (checkPropertySkipping(pvs)) {
 					return;
 				}
