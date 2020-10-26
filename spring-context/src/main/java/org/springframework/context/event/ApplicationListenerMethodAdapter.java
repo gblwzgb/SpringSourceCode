@@ -297,6 +297,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		Object bean = getTargetBean();
 		ReflectionUtils.makeAccessible(this.method);
 		try {
+			// 反射调用
 			return this.method.invoke(bean, args);
 		}
 		catch (IllegalArgumentException ex) {

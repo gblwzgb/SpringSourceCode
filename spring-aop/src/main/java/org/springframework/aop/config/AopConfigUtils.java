@@ -30,6 +30,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 实用程序类，用于处理AOP自动代理创建者的注册。
+ *
+ * 仅应注册一个自动代理创建者，但可以使用多个具体实现。
+ * 此类提供了一种简单的升级协议，允许调用方请求特定的自动代理创建者，并且知道该创建者或更强大的变体将被注册为后处理器。
+ */
+
+/**
  * Utility class for handling registration of AOP auto-proxy creators.
  *
  * <p>Only a single auto-proxy creator should be registered yet multiple concrete
@@ -47,12 +54,14 @@ public abstract class AopConfigUtils {
 
 	/**
 	 * The bean name of the internally managed auto-proxy creator.
+	 * （内部管理的自动代理创建者的Bean名称。）
 	 */
 	public static final String AUTO_PROXY_CREATOR_BEAN_NAME =
 			"org.springframework.aop.config.internalAutoProxyCreator";
 
 	/**
 	 * Stores the auto proxy creator classes in escalation order.
+	 * （按升级顺序存储自动代理创建者类。）
 	 */
 	private static final List<Class<?>> APC_PRIORITY_LIST = new ArrayList<>(3);
 
@@ -115,25 +124,30 @@ public abstract class AopConfigUtils {
 	}
 
 	@Nullable
+	// 按需要注册或升级 AUTO_PROXY_CREATOR
 	private static BeanDefinition registerOrEscalateApcAsRequired(
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 
+		// 如果 BeanDefinition 已经存在
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				int requiredPriority = findPriorityForClass(cls);
 				if (currentPriority < requiredPriority) {
+					// 新的 AUTO_PROXY_CREATOR 优先级比老的高，升级替换内部的 className
 					apcDefinition.setBeanClassName(cls.getName());
 				}
 			}
 			return null;
 		}
 
+		// 不存在，注册一个 BeanDefinition
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
 		beanDefinition.setSource(source);
+		// 这里给了一个最高优先级？
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
 		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);

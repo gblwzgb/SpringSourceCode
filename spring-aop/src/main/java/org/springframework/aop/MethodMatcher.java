@@ -17,7 +17,23 @@
 package org.springframework.aop;
 
 import java.lang.reflect.Method;
-
+/**
+ * Pointcut 的一部分：检查目标方法是否符合 advice 的条件。
+ *
+ * MethodMatcher可以静态评估，也可以在运行时（动态）评估。
+ * 静态匹配涉及方法和（可能）方法属性。
+ * 动态匹配还使特定调用的参数可用，以及运行先前建议应用于连接点的任何效果。
+ *
+ * 如果实现从其 isRuntime() 方法返回false，则可以静态执行评估，并且此方法的所有调用（无论其参数如何）的结果都是相同的。
+ * 这意味着，如果isRuntime()方法返回false，则将永远不会调用3-arg Match（Method，Class，Object []）方法。
+ *
+ * 如果一个实现从其2-arg Match（Method，Class）方法返回true，而其isRuntime（）方法返回true，
+ * 则在每次潜在的执行之前，将立即调用3-arg Match（Method，Class，Object []）方法。
+ * 相关建议，以决定是否应运行该建议。
+ * 所有先前的建议（例如，拦截器链中较早的拦截器）都将运行，因此在评估时可以使用它们在参数或ThreadLocal状态中产生的任何状态更改。
+ *
+ * 此接口的具体实现通常应提供Object.equals（Object）和Object.hashCode（）的正确实现，以便允许将匹配器用于缓存方案中，例如，在CGLIB生成的代理中。
+ */
 /**
  * Part of a {@link Pointcut}: Checks whether the target method is eligible for advice.
  *

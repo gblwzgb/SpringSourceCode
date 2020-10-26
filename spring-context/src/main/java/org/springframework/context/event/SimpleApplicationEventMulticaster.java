@@ -133,6 +133,10 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		Executor executor = getTaskExecutor();
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			if (executor != null) {
+				// 有两种方式可以实现异步：
+				// （全局的，全部走线程池）1、给这个类设置一个线程池，可以继承这个类，然后设置。
+				// （非全局，按消费者指定的形式来）2、第二种就是使用 @EnableAsync + @Async，在消费者上加，这样消费者执行的时候，就是异步的。
+				// 当然也可以 1、2 结合起来。。。
 				executor.execute(() -> invokeListener(listener, event));
 			}
 			else {
@@ -152,6 +156,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 * @since 4.1
 	 */
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
+		// 调用 listener
 		ErrorHandler errorHandler = getErrorHandler();
 		if (errorHandler != null) {
 			try {
@@ -169,6 +174,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			// 调用用户写的业务逻辑
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

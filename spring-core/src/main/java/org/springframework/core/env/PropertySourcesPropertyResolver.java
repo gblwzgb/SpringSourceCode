@@ -82,12 +82,13 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 					logger.trace("Searching for key '" + key + "' in PropertySource '" +
 							propertySource.getName() + "'");
 				}
+				// 从 PropertySource 内部封装的 source 中获取属性。这里就很灵活了，source 可以是 map、properties、context等等。
 				Object value = propertySource.getProperty(key);
 				if (value != null) {
 					if (resolveNestedPlaceholders && value instanceof String) {
 						value = resolveNestedPlaceholders((String) value);
 					}
-					logKeyFound(key, propertySource, value);
+					logKeyFound(key, propertySource, value);  // 打印 debug 日志
 					return convertValueIfNecessary(value, targetValueType);
 				}
 			}

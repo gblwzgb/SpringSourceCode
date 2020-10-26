@@ -57,6 +57,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * 读取给定的完全填充的ConfigurationClass实例集，并根据其内容在给定的BeanDefinitionRegistry中注册Bean定义。
+ *
+ * 此类是按照BeanDefinitionReader层次结构建模的，但是由于一组配置类不是Resource，因此未实现/扩展其任何构件。
+ */
+
+/**
  * Reads a given fully-populated set of ConfigurationClass instances, registering bean
  * definitions with the given {@link BeanDefinitionRegistry} based on its contents.
  *

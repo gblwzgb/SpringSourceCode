@@ -29,6 +29,8 @@ import org.springframework.lang.Nullable;
  * @author Adrian Colyer
  * @since 2.0
  */
+// todo：这个为什么不能直接和 AspectJAfterAdvice 一样的处理呢，也实现 MethodInterceptor ？
+	// 而是要搞个 MethodBeforeAdviceInterceptor 来包呢
 @SuppressWarnings("serial")
 public class AspectJMethodBeforeAdvice extends AbstractAspectJAdvice implements MethodBeforeAdvice, Serializable {
 

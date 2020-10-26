@@ -71,6 +71,7 @@ import org.springframework.util.StringUtils;
  * 只要没有advice，只要TargetSourceCreator指定自定义TargetSource，就会自动进行代理。
  * 如果没有设置TargetSourceCreators或没有匹配项，则默认情况下将使用SingletonTargetSource包装目标bean实例。
  */
+// 抽象自动代理创建器
 // 增强功能，是通过拦截器完成的
 
 /**
@@ -264,7 +265,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
 		// 发生了循环依赖了，需要提前暴露，记录一下
 		this.earlyProxyReferences.put(cacheKey, bean);
-		// AOP包装一下，这里要和postProcessAfterInitialization方法一起看
+		// AOP包装一下，这里要和postProcessAfterInitialization方法一起看，当发生循环依赖的时候，wrap bean 会被前置到这一步？
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
@@ -296,7 +297,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			}
 			// 获取适用于当前bean Class的Advisors
 			Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+			// 创建代理
 			Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
+			// 缓存起来
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
@@ -367,6 +370,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * 必要时包装给定的bean，即是否有资格被代理。
+	 */
+	/**
 	 * Wrap the given bean if necessary, i.e. if it is eligible for being proxied.
 	 * @param bean the raw bean instance
 	 * @param beanName the name of the bean
@@ -378,7 +384,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			return bean;
 		}
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
-			// 如果不是一个advised bean，则代表无需代理，直接返回即可
+			// 如果不是一个 advised bean，则代表无需代理，直接返回即可，这个是在倒数第二行put的，相当于缓存。
 			return bean;
 		}
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
@@ -393,6 +399,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (specificInterceptors != DO_NOT_PROXY) {
 			// 如果被advice了，记录为true
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 创建一个 Aop 代理类
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
@@ -503,7 +510,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		if (!proxyFactory.isProxyTargetClass()) {
 			if (shouldProxyTargetClass(beanClass, beanName)) {
-				// 代理目标类
+				// 代理目标类，使用cglib
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {

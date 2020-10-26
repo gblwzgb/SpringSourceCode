@@ -165,12 +165,12 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess,
 			final ConfigurablePropertyResolver propertyResolver) throws BeansException {
 
-		propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
-		propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
-		propertyResolver.setValueSeparator(this.valueSeparator);
+		propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);  // 默认 ${
+		propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);  // 默认 }
+		propertyResolver.setValueSeparator(this.valueSeparator);  // 默认 :
 
 		StringValueResolver valueResolver = strVal -> {
-			String resolved = (this.ignoreUnresolvablePlaceholders ?
+			String resolved = (this.ignoreUnresolvablePlaceholders ?  // 默认 false
 					propertyResolver.resolvePlaceholders(strVal) :
 					propertyResolver.resolveRequiredPlaceholders(strVal));
 			if (this.trimValues) {

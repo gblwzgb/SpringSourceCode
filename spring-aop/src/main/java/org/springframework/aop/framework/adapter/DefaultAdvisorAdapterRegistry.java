@@ -84,6 +84,8 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		}
 		for (AdvisorAdapter adapter : this.adapters) {
 			if (adapter.supportsAdvice(advice)) {
+				// 如果是适配器可以适配的 Advice，则使用适配器将 Advice 包装成拦截器。
+				// 比如 MethodBeforeAdvice 被包装成了 MethodBeforeAdviceInterceptor
 				interceptors.add(adapter.getInterceptor(advisor));
 			}
 		}

@@ -21,6 +21,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.Nullable;
 
+/*
+ * MVC框架SPI，允许对核心MVC工作流程进行参数化。
+ * 必须为每种处理程序类型实现的接口才能处理请求。此接口用于允许DispatcherServlet无限地扩展。 DispatcherServlet通过此接口访问所有已安装的处理程序，这意味着它不包含特定于任何处理程序类型的代码。
+ * 请注意，处理程序可以是Object类型。这是为了使其他框架中的处理程序可以与该框架集成，而无需自定义编码，并且允许注释驱动的处理程序对象不遵循任何特定的Java接口。
+ * 此接口不适用于应用程序开发人员。想要开发自己的Web工作流程的处理程序可以使用它。
+ * 注意：HandlerAdapter实现者可以实现org.springframework.core.Ordered接口，以便能够指定排序顺序（从而确定优先级）以供DispatcherServlet应用。非排序实例被视为最低优先级。
+ */
+
 /**
  * MVC framework SPI, allowing parameterization of the core MVC workflow.
  *

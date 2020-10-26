@@ -537,12 +537,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
-				// 调用在上下文中注册为bean的工厂处理器。
+				// 调用在上下文中注册为bean的工厂处理器。这个是留给用户的扩展点。
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
 				// 注册拦截Bean创建的Bean处理器。
-				// 实例化BeanPostProcessor，并注册到BeanFactory中去。
+				// 实例化BeanPostProcessor，并注册到BeanFactory中去。（也当成 Bean 来用）
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -920,7 +920,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Register a default embedded value resolver if no bean post-processor
 		// (such as a PropertyPlaceholderConfigurer bean) registered any before:
 		// at this point, primarily for resolution in annotation attribute values.
-		// 如果之前没有任何bean后处理器注册过（例如PropertyPlaceholderConfigurer Bean），则注册一个默认的嵌入式值解析器：主要用于注释属性值的解析。
+		// 如果之前没有任何bean后处理器注册过（例如PropertyPlaceholderConfigurer Bean），则注册一个默认的嵌入式值解析器：主要用于注解属性值的解析。
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			// 因为是一个FunctionalInterface接口，所以一个Lamda表达式搞定
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));

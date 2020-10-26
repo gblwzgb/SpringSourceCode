@@ -34,7 +34,8 @@ import org.springframework.aop.support.Pointcuts;
 import org.springframework.lang.Nullable;
 
 /**
- * AspectJPointcutAdvisor的内部实现。请注意，每个目标方法将有一个此advisor实例。
+ * AspectJPointcutAdvisor的内部实现。
+ * 请注意，每个目标方法将有一个此advisor实例。
  */
 
 /**
@@ -98,7 +99,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 		this.declarationOrder = declarationOrder;
 		this.aspectName = aspectName;
 
-		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
+		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {  // 这个一般来说默认 false
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
 					aspectInstanceFactory.getAspectMetadata().getPerClausePointcut(), this.declaredPointcut);
@@ -114,6 +115,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			/** 实例化 Advice */
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}

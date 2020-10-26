@@ -56,6 +56,8 @@ import org.springframework.util.Assert;
  * @since 2.0
  * @see org.springframework.aop.aspectj.annotation.AspectJAdvisorFactory
  */
+// 这个类的生成，在 org.springframework.aop.config.AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(org.springframework.beans.factory.support.BeanDefinitionRegistry) 中。
+	// 相关的可以看 AspectJAutoProxyRegistrar，这个类是在 @EnableAspectJAutoProxy 注解中导入的，所以注解开事务的话，需要使用 @EnableAspectJAutoProxy
 @SuppressWarnings("serial")
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
 
@@ -103,6 +105,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 		List<Advisor> advisors = super.findCandidateAdvisors();
 		// Build Advisors for all AspectJ aspects in the bean factory.  （Bean工厂中所有AspectJ切面的Advisors。）
 		if (this.aspectJAdvisorsBuilder != null) {  // 这里默认不会为null
+			// 获取 AspectJ 相关的注解切面
 			advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
 		}
 		return advisors;

@@ -330,10 +330,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				/**
-				 * 创建bean实例。
+				 * 是单例的，创建 bean 实例。
 				 */
 				if (mbd.isSingleton()) {
-					// Lamda表达式传入一个ObjectFactory，通过ObjectFactory.getObject获取bean
+					// 先从 DefaultSingletonBeanRegistry 的 singletonObjects 缓存中获取
+					// 取不到的时候，从 supplier 里获取，并放入缓存中。
+					// Lamda表达式传入一个ObjectFactory，通过ObjectFactory.getObject获取bean，这个ObjectFactory可以理解成supplier
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							return createBean(beanName, mbd, args);
@@ -346,19 +348,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					// 如果是 FactoryBean，则会通过 getObject 获取对象，获取到的对象会缓存起来，说明不是每次get都产生新的对象。
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
-
+				// 原型模式
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
 						beforePrototypeCreation(beanName);
+						// 和上面单例的区别就是，这里不会走 DefaultSingletonBeanRegistry 的缓存，所以每次都会创建新的。
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
 						afterPrototypeCreation(beanName);
 					}
+					// 这个和上面单例的一样。
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
@@ -394,7 +399,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
-		// Check if required type matches the type of the actual bean instance.
+		// Check if required type matches the type of the actual bean instance.  （检查所需的类型是否与实际bean实例的类型匹配。）
 		if (requiredType != null && !requiredType.isInstance(bean)) {
 			try {
 				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
@@ -920,6 +925,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return null;
 		}
 		String result = value;
+		// 这个解析器，这是在 org.springframework.beans.factory.config.PlaceholderConfigurerSupport.doProcessProperties 中添加的。
+		// 如果上面没有添加，那么在 AbstractApplicationContext 的 finishBeanFactoryInitialization 阶段，也会默认添加一个。
 		for (StringValueResolver resolver : this.embeddedValueResolvers) {
 			result = resolver.resolveStringValue(result);
 			if (result == null) {
@@ -1797,6 +1804,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return !this.alreadyCreated.isEmpty();
 	}
 
+
+	/**
+	 * 获取给定bean实例的对象，如果是FactoryBean，则为bean实例本身或其创建的对象。
+	 *
+	 * @param beanInstance 共享的 bean 实例
+	 * @param name 可能包含工厂取消引用前缀的名称
+	 * @param beanName 规范 bean 名称
+	 * @param mbd 合并的 bean 定义
+	 * @return 为 bean 公开的对象
+	 */
 	/**
 	 * Get the object for the given bean instance, either the bean
 	 * instance itself or its created object in case of a FactoryBean.
@@ -1810,7 +1827,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
-		if (BeanFactoryUtils.isFactoryDereference(name)) {
+		if (BeanFactoryUtils.isFactoryDereference(name)) {  // todo：这个if不明白
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
@@ -1827,6 +1844,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
 		if (!(beanInstance instanceof FactoryBean)) {
+			// 非 FactoryBean，直接返回
 			return beanInstance;
 		}
 
@@ -1835,6 +1853,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			mbd.isFactoryBean = true;
 		}
 		else {
+			// 先尝试从缓存中获取
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
@@ -1845,6 +1864,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// 获取并放入缓存
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;

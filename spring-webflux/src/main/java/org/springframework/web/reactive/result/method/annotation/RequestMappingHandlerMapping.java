@@ -52,6 +52,11 @@ import org.springframework.web.reactive.result.method.RequestMappingInfoHandlerM
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * RequestMappingInfoHandlerMapping 的扩展，
+ * 它从类级别和方法级别的 @RequestMapping 注解创建 RequestMappingInfo 实例。
+ */
+
+/**
  * An extension of {@link RequestMappingInfoHandlerMapping} that creates
  * {@link RequestMappingInfo} instances from class-level and method-level
  * {@link RequestMapping @RequestMapping} annotations.
@@ -151,16 +156,20 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Override
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		// 如果方法上有 @RequestMapping 注解，创建一个 RequestMappingInfo 用于描述该注解
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// 看看类上有没有 @RequestMapping 注解，有则创建一个 RequestMappingInfo 用于描述该注解
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// 将两个注解合并成一个 RequestMappingInfo
 				info = typeInfo.combine(info);
 			}
 			for (Map.Entry<String, Predicate<Class<?>>> entry : this.pathPrefixes.entrySet()) {
 				if (entry.getValue().test(handlerType)) {
 					String prefix = entry.getKey();
 					if (this.embeddedValueResolver != null) {
+						// todo ： 占位符？
 						prefix = this.embeddedValueResolver.resolveStringValue(prefix);
 					}
 					info = RequestMappingInfo.paths(prefix).build().combine(info);

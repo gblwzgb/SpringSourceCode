@@ -489,7 +489,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
-		// which cannot be stored in the shared merged bean definition.  （确保此时确实解析了bean class，并在无法动态存储的Class不能存储在共享合并bean定义中的情况下克隆bean定义。）
+		// which cannot be stored in the shared merged bean definition.
+		// （译：确保此时确实解析了bean class，并在无法动态存储的Class不能存储在共享合并bean定义中的情况下克隆bean定义。）
 		// 解析Bean的Class实例
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
@@ -499,6 +500,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Prepare method overrides.
 		try {
+			// 准备方法覆盖
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -509,7 +511,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.  （给BeanPostProcessors一个返回代理而不是目标bean实例的机会。）
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
-			// AOP吗？？
+			// 这里不是AOP
 			if (bean != null) {
 				return bean;
 			}
@@ -1239,6 +1241,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 有Supplier则从Supplier中获取Bean
 		Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
 		if (instanceSupplier != null) {
+			// 从 Supplier 中获取 bean实例
 			return obtainFromSupplier(instanceSupplier, beanName);
 		}
 
@@ -1259,6 +1262,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		if (resolved) {
 			if (autowireNecessary) {
+				// todo：通过构造方法实例化？
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
@@ -1276,6 +1280,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Preferred constructors for default construction?  （默认构造的首选构造函数？）
 		ctors = mbd.getPreferredConstructors();
 		if (ctors != null) {
+			// todo：通过构造方法实例化？
 			return autowireConstructor(beanName, mbd, ctors, null);
 		}
 
@@ -1437,7 +1442,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected BeanWrapper autowireConstructor(
 			String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
-
+		// 创建一个 ConstructorResolver，用于构造器注入
 		return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
 	}
 
@@ -1464,13 +1469,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
+		// 给 InstantiationAwareBeanPostProcessors 一个机会来阻断属性填充
 		boolean continueWithPropertyPopulation = true;
 
+		// 如果 RootBeanDefinition 是非合成的，且有定义 InstantiationAwareBeanPostProcessor
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 					if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
+						// 阻断了
 						continueWithPropertyPopulation = false;
 						break;
 					}
@@ -1479,9 +1487,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (!continueWithPropertyPopulation) {
+			// 阻断了
 			return;
 		}
 
+		// 如果这个 RootBeanDefinition 已经自带属性对，比如 org.springframework.aop.config.AopConfigUtils.registerOrEscalateApcAsRequired中，给BD添加了一个 Order 属性。
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();

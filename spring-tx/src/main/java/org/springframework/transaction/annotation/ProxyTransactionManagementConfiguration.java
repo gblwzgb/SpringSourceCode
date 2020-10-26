@@ -42,13 +42,15 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
 @Configuration(proxyBeanMethods = false)
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
-	@Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
+	@Bean(name = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)  // org.springframework.transaction.config.internalTransactionAdvisor
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
 			TransactionAttributeSource transactionAttributeSource,
 			TransactionInterceptor transactionInterceptor) {
+		// 创建事务的 Advisor
 		BeanFactoryTransactionAttributeSourceAdvisor advisor = new BeanFactoryTransactionAttributeSourceAdvisor();
 		advisor.setTransactionAttributeSource(transactionAttributeSource);
+		// 设置一个 Advice，就是下面创建的拦截器
 		advisor.setAdvice(transactionInterceptor);
 		if (this.enableTx != null) {
 			advisor.setOrder(this.enableTx.<Integer>getNumber("order"));

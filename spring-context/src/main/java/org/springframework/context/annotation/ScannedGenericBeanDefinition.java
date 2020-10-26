@@ -26,6 +26,14 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 基于ASM ClassReader的GenericBeanDefinition类的扩展，支持通过AnnotatedBeanDefinition接口公开的注释元数据。
+ *
+ * 此类不会尽早加载Bean类。而是从ASM ClassReader解析的".class"文件本身检索所有相关的元数据。
+ * 它在功能上等效于AnnotatedGenericBeanDefinition.AnnotatedGenericBeanDefinition（AnnotationMetadata），
+ * 但按类型区分已扫描的bean和已通过其他方式注册或检测的bean。
+ */
+
+/**
  * Extension of the {@link org.springframework.beans.factory.support.GenericBeanDefinition}
  * class, based on an ASM ClassReader, with support for annotation metadata exposed
  * through the {@link AnnotatedBeanDefinition} interface.
@@ -48,6 +56,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class ScannedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
 
+	// 注解元数据
 	private final AnnotationMetadata metadata;
 
 
@@ -58,7 +67,9 @@ public class ScannedGenericBeanDefinition extends GenericBeanDefinition implemen
 	 */
 	public ScannedGenericBeanDefinition(MetadataReader metadataReader) {
 		Assert.notNull(metadataReader, "MetadataReader must not be null");
+		// 注解元数据
 		this.metadata = metadataReader.getAnnotationMetadata();
+		//
 		setBeanClassName(this.metadata.getClassName());
 	}
 

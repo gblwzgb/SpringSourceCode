@@ -48,12 +48,23 @@ import org.springframework.util.ClassUtils;
  * @author Ramnivas Laddad
  * @since 2.0
  */
+// 子类 AnnotationAwareAspectJAutoProxyCreator 处理注解，ConfigBeanDefinitionParser处理XML？
 @SuppressWarnings("serial")
 public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
 
 	private static final Comparator<Advisor> DEFAULT_PRECEDENCE_COMPARATOR = new AspectJPrecedenceComparator();
 
 
+	/**
+	 * 按 AspectJ 优先级排序其余部分。如果两条 advice 来自同一 aspect，则它们将具有相同的顺序。
+	 * 然后，根据以下规则，对来自同一 aspect 的 advice 进一步排序：
+	 *
+	 * - 如果这对 advice 中的任何一个是 after advice，则最后声明的 advice 将具有最高优先级（最后运行），
+	 * - 否则首先声明的 advice 将具有最高优先级（先运行）
+	 *
+	 * 重要说明：advisor 按优先级从高到低的顺序排序。
+	 * 在进入连接点的过程中，优先级最高的 advisor 应首先运行。联接点“在出路”上，优先级最高的 advisor 应最后运行。
+	 */
 	/**
 	 * Sort the rest by AspectJ precedence. If two pieces of advice have
 	 * come from the same aspect they will have the same order.

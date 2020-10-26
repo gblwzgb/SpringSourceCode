@@ -21,6 +21,13 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.lang.Nullable;
 
 /**
+ * AOP Alliance MethodInvocation接口的扩展，允许访问通过其进行方法调用的代理。
+ *
+ * 必要时能够用代理替换返回值很有用，例如，如果调用目标返回了自身。
+ */
+// 通过 Object getProxy(); 可以访问到代理对象。
+
+/**
  * Extension of the AOP Alliance {@link org.aopalliance.intercept.MethodInvocation}
  * interface, allowing access to the proxy that the method invocation was made through.
  *

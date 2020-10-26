@@ -49,6 +49,12 @@ import org.springframework.web.reactive.handler.AbstractHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * HandlerMapping实现的抽象基类，该实现定义了请求和HandlerMethod之间的映射。
+ *
+ * 对于每个已注册的 handler 方法，唯一的映射将由子类维护，这些子类定义了映射类型<T>的详细信息。
+ */
+
+/**
  * Abstract base class for {@link HandlerMapping} implementations that define
  * a mapping between a request and a {@link HandlerMethod}.
  *
@@ -154,6 +160,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Override
 	public void afterPropertiesSet() {
 
+		// 初始化 handler 方法
 		initHandlerMethods();
 
 		// Total includes detected mappings + explicit registrations via registerMapping..
@@ -174,9 +181,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		String[] beanNames = obtainApplicationContext().getBeanNamesForType(Object.class);
 
 		for (String beanName : beanNames) {
-			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {  // beanName 不以 "scopedTarget." 为前置
 				Class<?> beanType = null;
 				try {
+					// 获取 bean 的类型
 					beanType = obtainApplicationContext().getType(beanName);
 				}
 				catch (Throwable ex) {
@@ -185,11 +193,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 					}
 				}
-				if (beanType != null && isHandler(beanType)) {
+				if (beanType != null && isHandler(beanType)) {  // 有 @Controller 或 @RequestMapping 注解
+					// 检测 handler 方法，注册到缓存中
 					detectHandlerMethods(beanName);
 				}
 			}
 		}
+		// 从缓存中取出来，然后初始化，空方法
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -202,14 +212,20 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				obtainApplicationContext().getType((String) handler) : handler.getClass());
 
 		if (handlerType != null) {
+			// 如果是 cglib 代理的，则返回原始类
 			final Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// 这里是 method 和 RequestMappingInfo 的映射
+			// method -> getMappingForMethod(method, userType) 是 MethodIntrospector.MetadataLookup<T> 接口的匿名实现。
+			// 在 MethodIntrospector.selectMethods 内部被调用
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> getMappingForMethod(method, userType));
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
 			methods.forEach((method, mapping) -> {
+				// 如果方法是私有的、静态的，就会抛异常
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+				// 写缓存，需要的时候取出来
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -432,6 +448,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected abstract Comparator<T> getMappingComparator(ServerWebExchange exchange);
 
 
+	/*
+	 * 一个注册表，用于维护到 handler 方法的所有映射，公开用于执行查找的方法并提供并发访问。
+	 */
 	/**
 	 * A registry that maintains all mappings to handler methods, exposing methods
 	 * to perform lookups and providing concurrent access.

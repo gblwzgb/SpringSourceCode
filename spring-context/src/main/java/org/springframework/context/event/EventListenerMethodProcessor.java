@@ -161,6 +161,7 @@ public class EventListenerMethodProcessor
 			}
 
 			if (CollectionUtils.isEmpty(annotatedMethods)) {
+				//
 				this.nonAnnotatedClasses.add(targetType);
 				if (logger.isTraceEnabled()) {
 					logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
@@ -176,11 +177,13 @@ public class EventListenerMethodProcessor
 					for (EventListenerFactory factory : factories) {
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
+							// 创建消费者，传入真实方法，用于反射调用。
 							ApplicationListener<?> applicationListener =
 									factory.createApplicationListener(beanName, targetType, methodToUse);
 							if (applicationListener instanceof ApplicationListenerMethodAdapter) {
 								((ApplicationListenerMethodAdapter) applicationListener).init(context, this.evaluator);
 							}
+							// 将消费者添加到上下文中，发布消息时回调这些消费者。
 							context.addApplicationListener(applicationListener);
 							break;
 						}

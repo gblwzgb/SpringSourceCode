@@ -21,9 +21,8 @@ import org.springframework.lang.Nullable;
 /**
  * 用于配置的AOP代理的委托接口，允许创建实际的代理对象。
  * 由DefaultAopProxyFactory应用的即用型实现可用于JDK动态代理和CGLIB代理。
- *
- * 这其实也是一个工厂类
  */
+// 这其实也是一个工厂类
 
 /**
  * Delegate interface for a configured AOP proxy, allowing for the creation

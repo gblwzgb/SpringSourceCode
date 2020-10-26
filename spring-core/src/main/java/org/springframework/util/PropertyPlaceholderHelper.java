@@ -28,6 +28,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.lang.Nullable;
 
 /**
+ * 用于处理其中具有占位符值的字符串的实用程序类。
+ * 占位符的格式为${name}。
+ * 使用PropertyPlaceholderHelper，可以将这些占位符替换为用户提供的值。
+ * 可以使用Properties实例或使用PropertyPlaceholderHelper.PlaceholderResolver提供替换值。
+ */
+
+/**
  * Utility class for working with Strings that have placeholder values in them. A placeholder takes the form
  * {@code ${name}}. Using {@code PropertyPlaceholderHelper} these placeholders can be substituted for
  * user-supplied values. <p> Values for substitution can be supplied using a {@link Properties} instance or
@@ -65,8 +72,8 @@ public class PropertyPlaceholderHelper {
 	/**
 	 * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
 	 * Unresolvable placeholders are ignored.
-	 * @param placeholderPrefix the prefix that denotes the start of a placeholder
-	 * @param placeholderSuffix the suffix that denotes the end of a placeholder
+	 * @param placeholderPrefix 表示占位符开始的前缀
+	 * @param placeholderSuffix 表示占位符结尾的后缀
 	 */
 	public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix) {
 		this(placeholderPrefix, placeholderSuffix, null, true);
@@ -76,8 +83,7 @@ public class PropertyPlaceholderHelper {
 	 * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
 	 * @param placeholderPrefix the prefix that denotes the start of a placeholder
 	 * @param placeholderSuffix the suffix that denotes the end of a placeholder
-	 * @param valueSeparator the separating character between the placeholder variable
-	 * and the associated default value, if any
+	 * @param valueSeparator the separating character between the placeholder variable and the associated default value, if any（占位符变量和关联的默认值之间的分隔符（如果有））
 	 * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should
 	 * be ignored ({@code true}) or cause an exception ({@code false})
 	 */
@@ -214,7 +220,9 @@ public class PropertyPlaceholderHelper {
 
 	/**
 	 * Strategy interface used to resolve replacement values for placeholders contained in Strings.
+	 * （策略接口，用于解析字符串中包含的占位符的替换值。）
 	 */
+	// 比 Properties 灵活一点，说白了就是一个输入、输出都是字符串的 Supplier？
 	@FunctionalInterface
 	public interface PlaceholderResolver {
 

@@ -32,6 +32,12 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 在BeanFactory中使用的简单对象实例化策略。
+ *
+ * 不支持方法注入，尽管它为子类提供了 hook ，以覆盖它们以添加方法注入支持，例如通过覆盖方法。
+ */
+
+/**
  * Simple object instantiation strategy for use in a BeanFactory.
  *
  * <p>Does not support Method Injection, although it provides hooks for subclasses

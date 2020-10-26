@@ -23,9 +23,9 @@ import org.aopalliance.aop.Advice;
  * Spring用户不使用该接口，而是为了支持不同类型的advice而具有通用性。
  *
  * Spring AOP围绕通过方法拦截提供的around advice，该advice符合AOP Alliance拦截API。
- * Advisor接口支持对不同类型的advice的支持，例如advice之前和之后的advice，这些advice不需要使用拦截来实现。
+ * Advisor接口支持对不同类型的advice的支持，例如 before advice 和 after advice，这些 advice 不需要使用拦截来实现。
  */
-
+// todo：看最后一句，before、after是如何实现的？around是通过拦截
 /**
  * Base interface holding AOP <b>advice</b> (action to take at a joinpoint)
  * and a filter determining the applicability of the advice (such as
@@ -51,6 +51,9 @@ public interface Advisor {
 	Advice EMPTY_ADVICE = new Advice() {};
 
 
+	/**
+	 * 返回这个 aspect 的 advice 部分。advice 可以是 interceptor，before advice，throws advice等。
+	 */
 	/**
 	 * Return the advice part of this aspect. An advice may be an
 	 * interceptor, a before advice, a throws advice, etc.

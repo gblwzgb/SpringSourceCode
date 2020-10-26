@@ -115,6 +115,7 @@ public class InjectionMetadata {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
+				// 遍历注入，可能是方法级的，也可能是字段级的。
 				element.inject(target, beanName, pvs);
 			}
 		}

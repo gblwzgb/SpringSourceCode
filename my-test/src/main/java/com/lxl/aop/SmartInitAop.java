@@ -8,7 +8,7 @@ import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostP
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class SmartInitAop implements BeanPostProcessor, PriorityOrdered {
 
 	@Override

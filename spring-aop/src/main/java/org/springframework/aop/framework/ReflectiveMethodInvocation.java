@@ -36,14 +36,14 @@ import org.springframework.lang.Nullable;
  * 使用反射调用目标对象。子类可以重写invokeJoinpoint()方法来更改此行为，
  * 因此对于更专门的MethodInvocation实现，这也是有用的基类。
  *
- * 可以克隆调用，并使用invocableClone()方法重复（每个克隆一次）调用proce()。
+ * 可以克隆调用，并使用invocableClone()方法重复（每个克隆一次）调用proceed()。
  * 也可以使用setUserAttribute / getUserAttribute方法将自定义属性附加到调用。
  *
  * 注意：此类被认为是内部的，不应直接访问。
  * 它公开的唯一原因是与现有框架集成（例如Pitchfork）的兼容性。
  * 出于任何其他目的，请改用ProxyMethodInvocation接口。
  */
-
+// 生命周期：每次方法调用产生，方法结束消逝。
 /**
  * Spring's implementation of the AOP Alliance
  * {@link org.aopalliance.intercept.MethodInvocation} interface,
@@ -174,6 +174,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+			// 如果是拦截器链的链尾，则调用真实对象
 			return invokeJoinpoint();
 		}
 
@@ -186,6 +187,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			Class<?> targetClass = (this.targetClass != null ? this.targetClass : this.method.getDeclaringClass());
 			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) {
+				// 动态匹配，这个业务上应该不怎么用
 				return dm.interceptor.invoke(this);
 			}
 			else {
@@ -195,6 +197,8 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			}
 		}
 		else {
+			// 大部分走这里，静态匹配
+			// 拦截器内部需要调用 proceed() 方法，让责任链延续下去，比如 after 的拦截器，比如 around 的拦截器，用户需要写 proceed() 方法。
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);

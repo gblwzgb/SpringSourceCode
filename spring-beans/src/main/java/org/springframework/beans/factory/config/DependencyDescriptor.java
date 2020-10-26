@@ -57,6 +57,7 @@ import org.springframework.util.ObjectUtils;
 @SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
 
+	// 定义该 字段 或 方法的类
 	private final Class<?> declaringClass;
 
 	@Nullable
@@ -67,6 +68,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	private int parameterIndex;
 
+	// 字段名称
 	@Nullable
 	private String fieldName;
 
@@ -263,6 +265,19 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	}
 
 	/**
+	 * 将指定的Bean名称解析为给定工厂中的Bean实例，作为对此依赖项的匹配算法的候选结果。
+	 *
+	 * 默认实现调用BeanFactory.getBean(String)。子类可以提供其他参数或其他自定义。
+	 *
+	 * @param beanName Bean名称，作为此依赖项的候选结果
+	 * @param requiredType bean的预期类型（作为断言）
+	 * @param beanFactory 相关工厂
+	 * @return the bean instance (never {@code null})
+	 * @throws BeansException if the bean could not be obtained
+	 * @since 4.3.2
+	 * @see BeanFactory#getBean(String)
+	 */
+	/**
 	 * Resolve the specified bean name, as a candidate result of the matching
 	 * algorithm for this dependency, to a bean instance from the given factory.
 	 * <p>The default implementation calls {@link BeanFactory#getBean(String)}.
@@ -389,6 +404,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	 */
 	public Class<?> getDependencyType() {
 		if (this.field != null) {
+			// 说明是字段依赖注入
 			if (this.nestingLevel > 1) {
 				Type type = this.field.getGenericType();
 				for (int i = 2; i <= this.nestingLevel; i++) {
@@ -409,10 +425,12 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 				return Object.class;
 			}
 			else {
+				// 获取字段类型
 				return this.field.getType();
 			}
 		}
 		else {
+			// 说明是方法依赖注入
 			return obtainMethodParameter().getNestedParameterType();
 		}
 	}

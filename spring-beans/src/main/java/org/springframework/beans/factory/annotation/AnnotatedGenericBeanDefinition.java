@@ -24,6 +24,14 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * GenericBeanDefinition类的扩展，增加了对通过AnnotatedBeanDefinition接口公开的注释元数据的支持。
+ *
+ * 这个GenericBeanDefinition变体主要用于测试期望在AnnotatedBeanDefinition上运行的代码，
+ * 例如Spring的组件扫描支持中的策略实现（默认定义类是org.springframework.context.annotation.ScannedGenericBeanDefinition，
+ * 它也实现了AnnotatedBeanDefinition接口）。
+ */
+
+/**
  * Extension of the {@link org.springframework.beans.factory.support.GenericBeanDefinition}
  * class, adding support for annotation metadata exposed through the
  * {@link AnnotatedBeanDefinition} interface.
