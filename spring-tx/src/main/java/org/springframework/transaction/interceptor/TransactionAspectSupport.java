@@ -390,7 +390,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.  （使用getTransaction和commit/rollback调用进行标准事务划分。）
 			/**
-			 * 这里会给@Transactional的事务，创建一个TransactionInfo（内部会从数据库连接池里获取一个Connection，所以即使业务代码里没有数据库操作，这里也会占用一个数据库连接池的资源，影响吞吐量）
+			 * 这里会给 @Transactional 的事务，创建一个TransactionInfo（内部会从数据库连接池里获取一个Connection，所以即使业务代码里没有数据库操作，这里也会占用一个数据库连接池的资源，影响吞吐量）
 			 */
 			TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
 
@@ -398,7 +398,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			try {
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
-				/** 执行业务逻辑 */
+				/** 将调用传播下去，执行下一个拦截器 */
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
@@ -411,7 +411,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				throw ex;
 			}
 			finally {
-				// 清理TransactionInfo，将当前线程的前一个TransactionInfo找回来。（栈）
+				// 复原至前一个 TransactionInfo。（栈）
 				cleanupTransactionInfo(txInfo);
 			}
 
@@ -501,6 +501,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	/**
 	 * Determine the specific transaction manager to use for the given transaction.
 	 */
+	// 先优选取 @Transactional-value 指定的，没指定则取默认的
 	@Nullable
 	protected TransactionManager determineTransactionManager(@Nullable TransactionAttribute txAttr) {
 		// Do not attempt to lookup tx manager if no tx attributes are set
@@ -508,23 +509,29 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			return getTransactionManager();
 		}
 
+		// 一般来说是 @Transactional 的 value 属性值
 		String qualifier = txAttr.getQualifier();
 		if (StringUtils.hasText(qualifier)) {
+			// 找指定的，并缓存起来。
 			return determineQualifiedTransactionManager(this.beanFactory, qualifier);
 		}
 		else if (StringUtils.hasText(this.transactionManagerBeanName)) {
 			return determineQualifiedTransactionManager(this.beanFactory, this.transactionManagerBeanName);
 		}
 		else {
+			// 取默认的
 			TransactionManager defaultTransactionManager = getTransactionManager();
 			if (defaultTransactionManager == null) {
+				// 如果没设置默认的，则从缓存里找找看
 				defaultTransactionManager = this.transactionManagerCache.get(DEFAULT_TRANSACTION_MANAGER_KEY);
 				if (defaultTransactionManager == null) {
+					// 找不到，则从 beanFactory 里找 TransactionManager，找到后放入缓存
 					defaultTransactionManager = this.beanFactory.getBean(TransactionManager.class);
 					this.transactionManagerCache.putIfAbsent(
 							DEFAULT_TRANSACTION_MANAGER_KEY, defaultTransactionManager);
 				}
 			}
+			// 返回默认的。
 			return defaultTransactionManager;
 		}
 	}
@@ -532,6 +539,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	private TransactionManager determineQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
 		TransactionManager txManager = this.transactionManagerCache.get(qualifier);
 		if (txManager == null) {
+			// 找 TransactionManager 类型的 bean，当出现多个结果值的时候，使用 qualifier 来选择
 			txManager = BeanFactoryAnnotationUtils.qualifiedBeanOfType(
 					beanFactory, TransactionManager.class, qualifier);
 			this.transactionManagerCache.putIfAbsent(qualifier, txManager);
@@ -680,7 +688,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// We always bind the TransactionInfo to the thread, even if we didn't create
 		// a new transaction here. This guarantees that the TransactionInfo stack
 		// will be managed correctly even if no transaction was created by this aspect.
-		// 将TransactionInfo绑定到ThreadLocal上
+		// 将TransactionInfo绑定到ThreadLocal上，这里是一个栈的实现。使用一个old指针来保存前一个 @Transactional 的 TransactionInfo 信息
 		txInfo.bindToThread();
 		return txInfo;
 	}
@@ -778,17 +786,22 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	protected static final class TransactionInfo {
 
 		@Nullable
+		// 该事务对应的事务管理器，可空
 		private final PlatformTransactionManager transactionManager;
 
 		@Nullable
+		// 该事务的属性，可空
 		private final TransactionAttribute transactionAttribute;
 
+		// 连接点证明？
 		private final String joinpointIdentification;
 
 		@Nullable
+		// 事务的状态，从事务管理器中取的，可空
 		private TransactionStatus transactionStatus;
 
 		@Nullable
+		// 前一个事务信息，栈，可空
 		private TransactionInfo oldTransactionInfo;
 
 		public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,

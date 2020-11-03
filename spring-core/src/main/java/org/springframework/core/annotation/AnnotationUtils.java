@@ -138,6 +138,9 @@ public abstract class AnnotationUtils {
 	}
 
 	/**
+	 * 确定给定的类是否适合携带指定的注释（在类型，方法或字段级别）。
+	 */
+	/**
 	 * Determine whether the given class is a candidate for carrying the specified annotation
 	 * (at type, method or field level).
 	 * @param clazz the class to introspect
@@ -149,6 +152,7 @@ public abstract class AnnotationUtils {
 	 * @see #isCandidateClass(Class, String)
 	 */
 	public static boolean isCandidateClass(Class<?> clazz, Class<? extends Annotation> annotationType) {
+		// 类以 java. 为包名，或者是 Ordered.class 类，才返回false，为了提升性能，防止白白搜寻吧（introspection）
 		return isCandidateClass(clazz, annotationType.getName());
 	}
 

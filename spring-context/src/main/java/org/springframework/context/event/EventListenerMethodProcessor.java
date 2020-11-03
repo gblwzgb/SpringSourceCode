@@ -90,6 +90,9 @@ public class EventListenerMethodProcessor
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 
+		// EventListenerFactory 有两个内置的实现
+		// 1、TransactionalEventListenerFactory，是在 AbstractTransactionManagementConfiguration.transactionalEventListenerFactory 中添加到 bean 的，用作事务的通知
+		// 2、DefaultEventListenerFactory，普通的事件通知
 		Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
 		List<EventListenerFactory> factories = new ArrayList<>(beans.values());
 		AnnotationAwareOrderComparator.sort(factories);
@@ -143,12 +146,17 @@ public class EventListenerMethodProcessor
 	}
 
 	private void processBean(final String beanName, final Class<?> targetType) {
+		// 不在 nonAnnotatedClasses 缓存里（该缓存提高性能）
+		// 有可能有 @EventListener 注解
+		// 非 Spring 容器类
 		if (!this.nonAnnotatedClasses.contains(targetType) &&
 				AnnotationUtils.isCandidateClass(targetType, EventListener.class) &&
 				!isSpringContainerClass(targetType)) {
 
 			Map<Method, EventListener> annotatedMethods = null;
 			try {
+				// 使用内省查询 @EventListener 注解
+				// @TransactionalEventListener 应该也是能被算进来的。
 				annotatedMethods = MethodIntrospector.selectMethods(targetType,
 						(MethodIntrospector.MetadataLookup<EventListener>) method ->
 								AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class));
@@ -161,7 +169,7 @@ public class EventListenerMethodProcessor
 			}
 
 			if (CollectionUtils.isEmpty(annotatedMethods)) {
-				//
+				// 如果没查到，加入缓存里，下次就可以直接略过这个类了。
 				this.nonAnnotatedClasses.add(targetType);
 				if (logger.isTraceEnabled()) {
 					logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
@@ -175,6 +183,9 @@ public class EventListenerMethodProcessor
 				Assert.state(factories != null, "EventListenerFactory List not initialized");
 				for (Method method : annotatedMethods.keySet()) {
 					for (EventListenerFactory factory : factories) {
+						// 这里可以看到 DefaultEventListenerFactory 直接返回了 true。
+						// 那么会不会出现 TransactionalEventListenerFactory 也支持，导致添加了两个回调呢。
+						// 答案是不会，因为 TransactionalEventListenerFactory 的优先级比较高（50），排在前面执行，如果碰到 @TransactionalEventListener 注解，完成后直接 break 了，所以不会再执行 DefaultEventListenerFactory
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
 							// 创建消费者，传入真实方法，用于反射调用。

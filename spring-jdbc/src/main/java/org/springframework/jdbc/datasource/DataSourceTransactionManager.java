@@ -239,7 +239,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
 		// DataSourceTransactionManager允许嵌套事务
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
-		// todo：
+		// 从ThreadLocal<Map<Object, Object>> 中取当前线程的值，key 是数据源，value 是 ConnectionHolder
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
@@ -330,8 +330,11 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	@Override
 	protected Object doSuspend(Object transaction) {
+		// 解绑事务对象里的 ConnectionHolder
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+		// 这里设置成null，然后 doBegin 的时候就会获取一个新的数据库连接
 		txObject.setConnectionHolder(null);
+		// 解绑并返回 ThreadLocal 里的 ConnectionHolder
 		return TransactionSynchronizationManager.unbindResource(obtainDataSource());
 	}
 

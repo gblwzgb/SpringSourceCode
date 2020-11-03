@@ -35,6 +35,11 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 public interface ResourceTransactionManager extends PlatformTransactionManager {
 
+	/*
+	 * 返回此事务管理器操作的资源工厂，例如 JDBC DataSource 或 JMS ConnectionFactory。
+	 *
+	 * 这个返回值 Object，一般来说会绑定在 TransactionSynchronizationManager 的 ThreadLocal 里，作为key。
+	 */
 	/**
 	 * Return the resource factory that this transaction manager operates on,
 	 * e.g. a JDBC DataSource or a JMS ConnectionFactory.

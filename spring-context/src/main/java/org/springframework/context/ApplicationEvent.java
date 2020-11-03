@@ -42,6 +42,8 @@ public abstract class ApplicationEvent extends EventObject {
 	 * which the event is associated (never {@code null})
 	 */
 	public ApplicationEvent(Object source) {
+		// 这个 source 传的是：最初发生事件的对象。在框架内有用，不要乱传。。
+		// producer 传 this 进来。
 		super(source);
 		this.timestamp = System.currentTimeMillis();
 	}

@@ -350,7 +350,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		// Use defaults if no transaction definition given.  (如果未提供事务定义，请使用默认值。)
 		TransactionDefinition def = (definition != null ? definition : TransactionDefinition.withDefaults());
 
-		// 从ThreadLocal中获取一个事务
+		// 从ThreadLocal中获取一个事务对象，一般是 DataSourceTransactionObject
 		Object transaction = doGetTransaction();
 		boolean debugEnabled = logger.isDebugEnabled();
 
@@ -534,6 +534,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 		DefaultTransactionStatus status = newTransactionStatus(
 				definition, transaction, newTransaction, newSynchronization, debug, suspendedResources);
+		// 设置当前线程的事务同步属性。
 		prepareSynchronization(status, definition);
 		return status;
 	}
@@ -556,14 +557,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	}
 
 	/**
-	 * 适当初始化事务同步。
+	 * 适当初始化事务同步管理器，设置各种属性。
 	 */
 	/**
 	 * Initialize transaction synchronization as appropriate.
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
 		if (status.isNewSynchronization()) {  // // 默认会进这里
-			// 设置当前事务是否活跃
+			// 设置当前事务是否活跃，比如 PROPAGATION_NOT_SUPPORTED 级别下，这里就是 false
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
 			// 设置事务传播级别
 			TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
@@ -878,7 +879,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			boolean unexpectedRollback = unexpected;
 
 			try {
-				// todo：完成之前做些事情
+				// 执行同步器的 BeforeCompletion 方法
 				triggerBeforeCompletion(status);
 
 				// todo：有保存点
