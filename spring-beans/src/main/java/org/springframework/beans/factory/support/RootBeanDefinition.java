@@ -34,7 +34,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * 根bean定义表示合并的bean定义，该定义在运行时支持Spring BeanFactory中的特定bean。
+ * root bean definition 表示 merged bean definition ，该定义在运行时支持Spring BeanFactory中的特定bean。
  * 它可能是由多个相互继承的原始bean定义创建的，通常定义为GenericBeanDefinitions。
  * 根bean定义本质上是运行时的"统一"bean定义视图。
  *

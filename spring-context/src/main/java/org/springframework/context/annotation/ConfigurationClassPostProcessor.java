@@ -334,6 +334,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			parser.validate();
 
 			Set<ConfigurationClass> configClasses = new LinkedHashSet<>(parser.getConfigurationClasses());
+			// 移除已经解析过的了
 			configClasses.removeAll(alreadyParsed);
 
 			// Read the model and create bean definitions based on its content
@@ -342,6 +343,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
+			// 注册 @Bean、@Import、@ImportResourse 的 BD 到 registry 中
 			this.reader.loadBeanDefinitions(configClasses);
 			alreadyParsed.addAll(configClasses);
 
@@ -354,11 +356,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());
 				}
 				for (String candidateName : newCandidateNames) {
-					if (!oldCandidateNames.contains(candidateName)) {
+					if (!oldCandidateNames.contains(candidateName)) {  // 先过滤一层已经处理过的
 						BeanDefinition bd = registry.getBeanDefinition(candidateName);
 						if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, this.metadataReaderFactory) &&
-								!alreadyParsedClasses.contains(bd.getBeanClassName())) {
-							// 添加一组新的候选人
+								!alreadyParsedClasses.contains(bd.getBeanClassName())) {  // 再过滤一遍
+							// 添加一组新的候选人，继续 while 循环
 							candidates.add(new BeanDefinitionHolder(bd, candidateName));
 						}
 					}

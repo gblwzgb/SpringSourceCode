@@ -53,6 +53,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	@Nullable
 	private final Object transaction;
 
+	// 是不是新的事务，如果是false，就表示加入了前一个事务。
 	private final boolean newTransaction;
 
 	private final boolean newSynchronization;
@@ -62,6 +63,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	private final boolean debug;
 
 	@Nullable
+	// 挂起的资源
 	private final Object suspendedResources;
 
 

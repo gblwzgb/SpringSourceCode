@@ -35,6 +35,8 @@ import org.springframework.core.type.AnnotationMetadata;
  * @since 3.1
  * @see EnableAspectJAutoProxy
  */
+// 根据 @Enable* 注解，将Mode和proxyTargetClass属性设置为正确的值，根据当前的BeanDefinitionRegistry注册 auto proxy creator。
+	// @EnableTransactionManagement 默认会 import 这个类
 public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 
 	private final Log logger = LogFactory.getLog(getClass());
@@ -69,6 +71,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 					Boolean.class == proxyTargetClass.getClass()) {
 				candidateFound = true;
 				if (mode == AdviceMode.PROXY) {
+					// 默认会注册 InfrastructureAdvisorAutoProxyCreator ？
 					AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
 					if ((Boolean) proxyTargetClass) {
 						AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);

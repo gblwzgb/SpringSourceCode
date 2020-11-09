@@ -748,7 +748,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
 		// todo：看下DefaultListableBeanFactory.doGetBeanNamesForType内部是否包含了实例化的过程。
-		// 调用BeanFactoryPostProcessor.postProcessBeanFactory
+		// 1、调用 BeanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry
+		// 2、调用BeanFactoryPostProcessor.postProcessBeanFactory
 		PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime

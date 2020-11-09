@@ -37,6 +37,7 @@ import org.springframework.lang.Nullable;
  * 最后，FactoryBean对象参与包含BeanFactory的Bean创建同步。
  * 除了出于FactoryBean自身（或类似方式）内部的延迟初始化的目的之外，通常不需要内部同步。
  */
+// 这个类存在的意义是：把 bean 实例化、初始化的过程下放给用户来实现？
 // 和 ObjectFactory 的区别?
 /**
  * Interface to be implemented by objects used within a {@link BeanFactory} which

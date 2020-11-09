@@ -113,6 +113,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
 		if (this.nestedAnnotationsAsMap) {
 			return AnnotationMetadata.super.getAnnotationAttributes(annotationName, classValuesAsString);
 		}
+		// 第一个参数传入需要被反射的 class，也就是被注解的 class
 		return AnnotatedElementUtils.getMergedAnnotationAttributes(
 				getIntrospectedClass(), annotationName, classValuesAsString, false);
 	}

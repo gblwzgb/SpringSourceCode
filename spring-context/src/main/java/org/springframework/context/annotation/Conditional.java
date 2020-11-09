@@ -22,6 +22,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/*
+ * 指示仅当所有指定 condition 都匹配时，组件才有资格注册。
+ *
+ * condition 是可以在要注册 Bean Definition 之前以编程方式确定的任何状态（有关详细信息，请参见 Condition）。
+ *
+ * @Conditional批注可以通过以下任何一种方式使用：
+ * - 作为在任何类上直接或间接用@Component批注的类型级注解，包括@Configuration类
+ * - 作为元注解，目的是将自定义构造型注解组合
+ * - 为任何@Bean方法上的方法级注解
+ *
+ * 如果@Configuration类用@Conditional标记，则与该类关联的所有@Bean方法，@Import注释和@ComponentScan注释都将受条件限制。
+ *
+ * 注意：不支持@Conditional批注的继承。父类或重写方法中的任何条件都不会考虑。
+ * 为了强制执行这些语义，@Conditional本身未声明为@Inherited；
+ * 此外，任何使用@Conditional进行元注释的自定义组合注释都不得声明为@Inherited。
+ */
 /**
  * Indicates that a component is only eligible for registration when all
  * {@linkplain #value specified conditions} match.

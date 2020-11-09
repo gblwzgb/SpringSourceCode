@@ -147,10 +147,13 @@ class ConfigurationClassBeanDefinitionReader {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
+			// 为 @Bean 方法，加载 BeanDefinitions，并注册到 registry 中
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
+		// 处理导入的资源，处理成 BD 后，注册到 registry
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// 处理 ImportBeanDefinitionRegistrar 接口，会注册 BD 到 registry
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
@@ -183,27 +186,37 @@ class ConfigurationClassBeanDefinitionReader {
 	@SuppressWarnings("deprecation")  // for RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE
 	private void loadBeanDefinitionsForBeanMethod(BeanMethod beanMethod) {
 		ConfigurationClass configClass = beanMethod.getConfigurationClass();
+		// 方法的元数据
 		MethodMetadata metadata = beanMethod.getMetadata();
+		// 获取到方法名
 		String methodName = metadata.getMethodName();
 
 		// Do we need to mark the bean as skipped by its condition?
+		// 根据 @Conditional 决定是否跳过
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
+			// 跳过了加到缓存中
 			configClass.skippedBeanMethods.add(methodName);
 			return;
 		}
 		if (configClass.skippedBeanMethods.contains(methodName)) {
+			// 缓存过滤一下
 			return;
 		}
 
+		// 获取注解的属性
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		Assert.state(bean != null, "No @Bean annotation attributes");
 
 		// Consider name and any aliases
+		// 获取指定的bean名称
 		List<String> names = new ArrayList<>(Arrays.asList(bean.getStringArray("name")));
+		// 如果指定了，则取第一个，多出来的当做别名。
+		// 如果没指定，则使用方法名作为 beanName
 		String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
 		// Register aliases even when overridden
 		for (String alias : names) {
+			// 注册别名
 			this.registry.registerAlias(beanName, alias);
 		}
 
@@ -221,7 +234,7 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setResource(configClass.getResource());
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
-		if (metadata.isStatic()) {
+		if (metadata.isStatic()) {  // 静态方法
 			// static @Bean method
 			if (configClass.getMetadata() instanceof StandardAnnotationMetadata) {
 				beanDef.setBeanClass(((StandardAnnotationMetadata) configClass.getMetadata()).getIntrospectedClass());
@@ -232,12 +245,13 @@ class ConfigurationClassBeanDefinitionReader {
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
 		else {
+			// 方法所在的类的 beanName，作为 FactoryBeanName
 			// instance @Bean method
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
 
-		if (metadata instanceof StandardMethodMetadata) {
+		if (metadata instanceof StandardMethodMetadata) {  // 基于反射的
 			beanDef.setResolvedFactoryMethod(((StandardMethodMetadata) metadata).getIntrospectedMethod());
 		}
 
@@ -245,8 +259,10 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setAttribute(org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor.
 				SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
 
+		// 设置公共的 BD 信息，比如 @Lazy 等注解
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
 
+		//
 		Autowire autowire = bean.getEnum("autowire");
 		if (autowire.isAutowire()) {
 			beanDef.setAutowireMode(autowire.value());
@@ -257,11 +273,13 @@ class ConfigurationClassBeanDefinitionReader {
 			beanDef.setAutowireCandidate(false);
 		}
 
+		// 初始化方法在这里，设置到 BD 里
 		String initMethodName = bean.getString("initMethod");
 		if (StringUtils.hasText(initMethodName)) {
 			beanDef.setInitMethodName(initMethodName);
 		}
 
+		// 销毁方法，设置到 BD 里
 		String destroyMethodName = bean.getString("destroyMethod");
 		beanDef.setDestroyMethodName(destroyMethodName);
 
@@ -290,6 +308,7 @@ class ConfigurationClassBeanDefinitionReader {
 			logger.trace(String.format("Registering bean definition for @Bean method %s.%s()",
 					configClass.getMetadata().getClassName(), beanName));
 		}
+		// 将 BD 注册到注册表里
 		this.registry.registerBeanDefinition(beanName, beanDefToRegister);
 	}
 

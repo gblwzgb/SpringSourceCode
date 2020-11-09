@@ -85,7 +85,7 @@ final class PostProcessorRegistrationDelegate {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					/**
-					 * 让BeanDefinitionRegistryPostProcessor个性化地处理这个BeanDefinition注册表
+					 * 让 BeanDefinitionRegistryPostProcessor 个性化地处理这个 BeanDefinition 注册表
 					 */
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					// 添加到列表里
@@ -140,6 +140,7 @@ final class PostProcessorRegistrationDelegate {
 			// 排序、添加、按顺序调用、清除一下，和上面一样的。
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
+			// 调用 postProcessBeanDefinitionRegistry
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
@@ -148,6 +149,7 @@ final class PostProcessorRegistrationDelegate {
 			boolean reiterate = true;
 			while (reiterate) {
 				reiterate = false;
+				// 处理完一个 BeanDefinitionRegistryPostProcessor，可能会有新的 BeanDefinitionRegistryPostProcessor 产生，所以这里再找找看。
 				postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 				for (String ppName : postProcessorNames) {
 					if (!processedBeans.contains(ppName)) {
@@ -158,6 +160,7 @@ final class PostProcessorRegistrationDelegate {
 				}
 				sortPostProcessors(currentRegistryProcessors, beanFactory);
 				registryProcessors.addAll(currentRegistryProcessors);
+				// 调用 postProcessBeanDefinitionRegistry
 				invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 				currentRegistryProcessors.clear();
 			}

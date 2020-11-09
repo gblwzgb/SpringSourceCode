@@ -329,10 +329,10 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
-		// 查询注入元数据
+		// 查询注入元数据，和 AutowiredAnnotationBeanPostProcessor 流程很像，就注解不同
 		InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), pvs);
 		try {
-			// 注入
+			// 注入，和 AutowiredAnnotationBeanPostProcessor 一样的代码了。
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (Throwable ex) {

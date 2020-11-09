@@ -47,14 +47,17 @@ final class SimpleMetadataReader implements MetadataReader {
 
 	SimpleMetadataReader(Resource resource, @Nullable ClassLoader classLoader) throws IOException {
 		SimpleAnnotationMetadataReadingVisitor visitor = new SimpleAnnotationMetadataReadingVisitor(classLoader);
+		// 将 visitor 传到 asm 框架里，完成从资源到元数据的转换（访问者模式，可以传入不同的 visitor，然后不同的操作。）
 		getClassReader(resource).accept(visitor, PARSING_OPTIONS);
 		this.resource = resource;
+		// 获取元数据
 		this.annotationMetadata = visitor.getMetadata();
 	}
 
 	private static ClassReader getClassReader(Resource resource) throws IOException {
 		try (InputStream is = new BufferedInputStream(resource.getInputStream())) {
 			try {
+				// asm 框架，会读取这个.class资源
 				return new ClassReader(is);
 			}
 			catch (IllegalArgumentException ex) {

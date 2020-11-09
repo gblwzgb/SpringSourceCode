@@ -1477,6 +1477,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+					// 实例化后，还要不要继续处理？默认true
 					if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
 						// 阻断了
 						continueWithPropertyPopulation = false;
@@ -1491,7 +1492,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			return;
 		}
 
-		// 如果这个 RootBeanDefinition 已经自带属性对，比如 org.springframework.aop.config.AopConfigUtils.registerOrEscalateApcAsRequired中，给BD添加了一个 Order 属性。
+		// 如果这个 RootBeanDefinition 已经自带属性对，比如 org.springframework.aop.config.AopConfigUtils.registerOrEscalateApcAsRequired中，给 BD 添加了一个 Order 属性。
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();

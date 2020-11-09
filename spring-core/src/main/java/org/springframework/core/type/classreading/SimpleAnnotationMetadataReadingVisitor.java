@@ -40,6 +40,7 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  * @since 5.2
  */
+// 实现回调方法(visit)，asm框架会按固定的顺序调用这些visit，该visitor实现负责提供回调，并将读到的class信息记录下来，在visitEnd中，将记录下来的一系列信息，打包成SimpleAnnotationMetadata
 final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
 	@Nullable
@@ -82,11 +83,15 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 	public void visit(int version, int access, String name, String signature,
 			@Nullable String supername, String[] interfaces) {
 
+		// 资源名 -> 全限定名
 		this.className = toClassName(name);
+		// 访问权限
 		this.access = access;
 		if (supername != null && !isInterface(access)) {
+			// 超类
 			this.superClassName = toClassName(supername);
 		}
+		// 一组接口名
 		this.interfaceNames = new String[interfaces.length];
 		for (int i = 0; i < interfaces.length; i++) {
 			this.interfaceNames[i] = toClassName(interfaces[i]);
@@ -138,9 +143,14 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
+		// 成员类的类名
 		String[] memberClassNames = StringUtils.toStringArray(this.memberClassNames);
+		// 被注解了的方法的元数据
+		// PS：这里数组传的是0，但是内部会自动扩容的，并不是只取一个的意思。。。如果用list.toArray()的话，返回的Object的，需要强转，挺麻烦的。
 		MethodMetadata[] annotatedMethods = this.annotatedMethods.toArray(new MethodMetadata[0]);
+		// 合并过的注解
 		MergedAnnotations annotations = MergedAnnotations.of(this.annotations);
+		// 封装成 SimpleAnnotationMetadata
 		this.metadata = new SimpleAnnotationMetadata(this.className, this.access,
 				this.enclosingClassName, this.superClassName, this.independentInnerClass,
 				this.interfaceNames, memberClassNames, annotatedMethods, annotations);

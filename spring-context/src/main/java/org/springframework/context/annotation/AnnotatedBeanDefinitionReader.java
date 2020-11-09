@@ -34,6 +34,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 方便的适配器，用于以编程方式注册Bean类。
+ *
+ * 这是 ClassPathBeanDefinitionScanner 的替代方法，它应用注解的相同解析，但仅适用于显式注册的类。
+ */
+
+/**
  * Convenient adapter for programmatic registration of bean classes.
  *
  * <p>This is an alternative to {@link ClassPathBeanDefinitionScanner}, applying
@@ -234,6 +240,17 @@ public class AnnotatedBeanDefinitionReader {
 	}
 
 	/**
+	 * 从给定的 bean class 中注册一个bean，并从类声明的注解中派生其元数据。
+	 *
+	 * @param beanClass the class of the bean
+	 * @param name an explicit name for the bean
+	 * @param supplier 创建 bean 实例的 supplier，可不设置
+	 * @param qualifiers Bean类级别上的限定符，如果有的话，还要考虑特定的限定符注释
+	 * @param customizers one or more callbacks for customizing the factory's
+	 * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+	 * @since 5.0
+	 */
+	/**
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
 	 * @param beanClass the class of the bean
@@ -251,22 +268,27 @@ public class AnnotatedBeanDefinitionReader {
 			@Nullable BeanDefinitionCustomizer[] customizers) {
 
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
-		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
+		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {  // todo：conditionEvaluator 是如何工作的？
+			// 取 @Conditional 注解，来评估是不是需要跳过。典型的应用如： @Profile
 			return;
 		}
 
-		abd.setInstanceSupplier(supplier);
-		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
+		abd.setInstanceSupplier(supplier);  // 设置 supplier
+		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);  // todo：
 		abd.setScope(scopeMetadata.getScopeName());
+		// 生成 beanName，AnnotationBeanNameGenerator
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
 
+		// 处理通用的 Definition 注解，比如 @Primary、@Lazy、@DependsOn 等
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
 				if (Primary.class == qualifier) {
+					// 有 @Primary 注解
 					abd.setPrimary(true);
 				}
 				else if (Lazy.class == qualifier) {
+					// // 有 @Lazy 注解
 					abd.setLazyInit(true);
 				}
 				else {
@@ -276,12 +298,14 @@ public class AnnotatedBeanDefinitionReader {
 		}
 		if (customizers != null) {
 			for (BeanDefinitionCustomizer customizer : customizers) {
+				// 定制化处理
 				customizer.customize(abd);
 			}
 		}
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// 注册到 registry 中。注册了 BeanDefinition，注册了别名
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 
