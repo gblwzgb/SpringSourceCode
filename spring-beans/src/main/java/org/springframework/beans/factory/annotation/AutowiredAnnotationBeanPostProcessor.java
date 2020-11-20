@@ -706,6 +706,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			if (checkPropertySkipping(pvs)) {
 				return;
 			}
+			// 强转成 Method
 			Method method = (Method) this.member;
 			Object[] arguments;
 			if (this.cached) {
@@ -713,18 +714,22 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				arguments = resolveCachedArguments(beanName);
 			}
 			else {
+				// 获取入参类型数组
 				Class<?>[] paramTypes = method.getParameterTypes();
 				arguments = new Object[paramTypes.length];
+				// 每个入参都是一个依赖，对应一个依赖描述
 				DependencyDescriptor[] descriptors = new DependencyDescriptor[paramTypes.length];
 				Set<String> autowiredBeans = new LinkedHashSet<>(paramTypes.length);
 				Assert.state(beanFactory != null, "No BeanFactory available");
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				for (int i = 0; i < arguments.length; i++) {
+					// 方法参数
 					MethodParameter methodParam = new MethodParameter(method, i);
 					DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, this.required);
 					currDesc.setContainingClass(bean.getClass());
 					descriptors[i] = currDesc;
 					try {
+						// 获取依赖的实参
 						Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
 						if (arg == null && !this.required) {
 							arguments = null;
@@ -737,6 +742,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					}
 				}
 				synchronized (this) {
+					// 放入缓存
 					if (!this.cached) {
 						if (arguments != null) {
 							DependencyDescriptor[] cachedMethodArguments = Arrays.copyOf(descriptors, arguments.length);

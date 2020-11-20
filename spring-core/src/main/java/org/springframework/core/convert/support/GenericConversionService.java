@@ -251,22 +251,27 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 */
 	@Nullable
 	protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		// 先从缓存中取取看
 		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);
 		GenericConverter converter = this.converterCache.get(key);
 		if (converter != null) {
 			return (converter != NO_MATCH ? converter : null);
 		}
 
+		// 查找转换器
 		converter = this.converters.find(sourceType, targetType);
 		if (converter == null) {
+			// 可以的话，使用 NO_OP_CONVERTER，给什么吐什么
 			converter = getDefaultConverter(sourceType, targetType);
 		}
 
 		if (converter != null) {
+			// 找到了，放缓存
 			this.converterCache.put(key, converter);
 			return converter;
 		}
 
+		// 设置一个匹配不到的标记，放缓存里
 		this.converterCache.put(key, NO_MATCH);
 		return null;
 	}
@@ -496,11 +501,13 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	/**
 	 * Manages all converters registered with the service.
+	 * 管理在该服务中注册的所有转换器。
 	 */
 	private static class Converters {
 
 		private final Set<GenericConverter> globalConverters = new LinkedHashSet<>();
 
+		// <可转换的S->T对，可使用的转换器>
 		private final Map<ConvertiblePair, ConvertersForPair> converters = new LinkedHashMap<>(36);
 
 		public void add(GenericConverter converter) {
@@ -653,6 +660,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	/**
 	 * Manages converters registered with a specific {@link ConvertiblePair}.
+	 * 管理注册到特定GenericConverter.ConvertiblePair的转换器。
 	 */
 	private static class ConvertersForPair {
 

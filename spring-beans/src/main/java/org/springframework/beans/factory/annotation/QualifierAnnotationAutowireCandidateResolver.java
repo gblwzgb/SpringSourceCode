@@ -43,6 +43,13 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * AutowireCandidateResolver实现，将bean定义限定符与要自动连接的字段或参数上的限定符注释相匹配。
+ * 还通过值注释支持建议的表达式值。
+ *
+ * 如果可用，还支持JSR-330的javax.inject.Qualifier批注。
+ */
+
+/**
  * {@link AutowireCandidateResolver} implementation that matches bean definition qualifiers
  * against {@link Qualifier qualifier annotations} on the field or parameter to be autowired.
  * Also supports suggested expression values through a {@link Value value} annotation.

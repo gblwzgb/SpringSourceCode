@@ -927,6 +927,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String result = value;
 		// 这个解析器，这是在 org.springframework.beans.factory.config.PlaceholderConfigurerSupport.doProcessProperties 中添加的。
 		// 如果上面没有添加，那么在 AbstractApplicationContext 的 finishBeanFactoryInitialization 阶段，也会默认添加一个。
+		// 这里应该是 PropertySourcesPlaceholderConfigurer#processProperties(...) 中添加的匿名实现类。
 		for (StringValueResolver resolver : this.embeddedValueResolvers) {
 			result = resolver.resolveStringValue(result);
 			if (result == null) {

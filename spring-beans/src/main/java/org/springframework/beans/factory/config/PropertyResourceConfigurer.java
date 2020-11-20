@@ -27,7 +27,7 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.core.io.support.PropertiesLoaderSupport;
 import org.springframework.util.ObjectUtils;
 
-/**
+/*
  * 允许从属性资源（即属性文件）配置单个bean属性值。
  * 对于针对系统管理员的自定义配置文件很有用，这些文件覆盖了在应用程序上下文中配置的Bean属性。
  *

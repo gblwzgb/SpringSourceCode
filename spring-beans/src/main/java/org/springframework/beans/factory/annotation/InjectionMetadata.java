@@ -165,6 +165,7 @@ public class InjectionMetadata {
 	 */
 	public abstract static class InjectedElement {
 
+		// 可能是 Field、Method
 		protected final Member member;
 
 		protected final boolean isField;

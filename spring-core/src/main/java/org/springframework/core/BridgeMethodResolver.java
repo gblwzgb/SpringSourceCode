@@ -65,6 +65,7 @@ public final class BridgeMethodResolver {
 	 * @return the original method (either the bridged method or the passed-in method
 	 * if no more specific one could be found)
 	 */
+	// 泛型子类中override父类的泛型方法时，编译器会自动生成一个桥接方法
 	public static Method findBridgedMethod(Method bridgeMethod) {
 		if (!bridgeMethod.isBridge()) {
 			return bridgeMethod;

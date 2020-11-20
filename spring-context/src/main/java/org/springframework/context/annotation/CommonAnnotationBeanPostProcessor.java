@@ -405,6 +405,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			});
 
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 获取桥接方法的原始方法
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;
@@ -533,6 +534,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 		if (factory instanceof AutowireCapableBeanFactory) {
 			AutowireCapableBeanFactory beanFactory = (AutowireCapableBeanFactory) factory;
+			// 这里和 LookupElement 和 LookupDependencyDescriptor 是 1:1 的。因为这种资源型的注入，只支持单参数注入，不像 @Autowired 注入，可以支持多参数注入。
 			DependencyDescriptor descriptor = element.getDependencyDescriptor();
 			if (this.fallbackToDefaultTypeMatch && element.isDefaultName && !factory.containsBean(name)) {
 				autowiredBeanNames = new LinkedHashSet<>();
@@ -570,7 +572,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	/**
 	 * Class representing generic injection information about an annotated field
 	 * or setter method, supporting @Resource and related annotations.
-	 * （译：表示有关带注释的字段或设置方法的一般注入信息的类，支持@Resource和相关的注释。）
+	 * （译：表示有关带注解的字段或setter方法的一般注入信息的类，支持@Resource和相关的注释。）
 	 */
 	protected abstract static class LookupElement extends InjectionMetadata.InjectedElement {
 
@@ -809,6 +811,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	 * Extension of the DependencyDescriptor class,
 	 * overriding the dependency type with the specified resource type.
 	 */
+	// DependencyDescriptor类的扩展，使用指定的资源类型覆盖依赖类型。
 	private static class LookupDependencyDescriptor extends DependencyDescriptor {
 
 		private final Class<?> lookupType;

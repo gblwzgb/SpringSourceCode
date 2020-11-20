@@ -129,6 +129,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 		if (this.propertySources == null) {
 			this.propertySources = new MutablePropertySources();
 			if (this.environment != null) {
+				// 这里匿名实现了一个 PropertySource，该 PropertySource 从 Environment 中取KV，后面就可以从这个 PropertySource 中取属性值了。
 				this.propertySources.addLast(
 					new PropertySource<Environment>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
 						@Override

@@ -250,15 +250,18 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		if (targetType == null) {
 			return (T) value;
 		}
+		// 这个是 set 或者 get延迟生成的，这里应该是null
 		ConversionService conversionServiceToUse = this.conversionService;
 		if (conversionServiceToUse == null) {
 			// Avoid initialization of shared DefaultConversionService if
 			// no standard type conversion is needed in the first place...
-			if (ClassUtils.isAssignableValue(targetType, value)) {
+			if (ClassUtils.isAssignableValue(targetType, value)) {  // 如果 value 已经是目标类型了，则不需要转换
 				return (T) value;
 			}
+			// 使用共享的实例
 			conversionServiceToUse = DefaultConversionService.getSharedInstance();
 		}
+		// 转换类型
 		return conversionServiceToUse.convert(value, targetType);
 	}
 
