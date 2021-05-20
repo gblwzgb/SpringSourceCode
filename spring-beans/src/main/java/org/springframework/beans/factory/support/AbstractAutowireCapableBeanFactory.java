@@ -1246,6 +1246,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (mbd.getFactoryMethodName() != null) {
+			// 这里会使用工厂方法创建bean，典型的如 @Configuration 配置类中的 @Bean 方法注解的 bean
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
 

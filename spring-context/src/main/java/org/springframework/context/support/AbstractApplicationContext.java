@@ -552,7 +552,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.  （在特定上下文子类中初始化其他特殊bean。）
-				// 给子类一个机会，去干一些事情，比如SpringBoot初始化Tomcat就在这一步。
+				// 给子类一个机会，去干一些事情，比如 SpringBoot 启动 Tomcat 就在这一步。
 				onRefresh();
 
 				// Check for listener beans and register them.  （检查监听器bean并注册它们。）
@@ -650,9 +650,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
-		// 项目中一般是AnnotationConfigServletWebApplicationContext，继承自GenericWebApplicationContext，啥都没干
+		// 项目中一般是 AnnotationConfigServletWebApplicationContext，继承自 GenericWebApplicationContext，啥都没干
 		refreshBeanFactory();
-		// 获取GenericWebApplicationContext中的ConfigurableListableBeanFactory
+		// 获取 GenericWebApplicationContext 中的 ConfigurableListableBeanFactory
 		return getBeanFactory();
 	}
 
@@ -670,7 +670,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Tell the internal bean factory to use the context's class loader etc.
 		// 给beanFactory设置一个类加载器，用于加载bean的class
 		beanFactory.setBeanClassLoader(getClassLoader());
-		// 给beanFactory设置一个bean表达式解析器
+		// 给beanFactory设置一个bean表达式解析器（SpEL表达式？）
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
@@ -700,6 +700,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found.
 		if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+			// 加载时织入
 			beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
 			// Set a temporary ClassLoader for type matching.
 			beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));

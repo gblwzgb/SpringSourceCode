@@ -247,6 +247,7 @@ class ConfigurationClassBeanDefinitionReader {
 		else {
 			// 方法所在的类的 beanName，作为 FactoryBeanName
 			// instance @Bean method
+			// 后面会使用这个配置类的 @Bean 所在的方法，来创建 bean。（可以把配置类理解成 FactoryBean，用户定义的 @Bean 所在的方法，就是 getObject 方法。）
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
